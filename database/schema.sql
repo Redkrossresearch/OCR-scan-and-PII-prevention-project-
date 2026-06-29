@@ -1,27 +1,24 @@
 CREATE DATABASE IF NOT EXISTS dlp_project;
 USE dlp_project;
 
--- Users Table
 CREATE TABLE users (
-id INT AUTO_INCREMENT PRIMARY KEY,
-username VARCHAR(100) NOT NULL,
-email VARCHAR(255) UNIQUE NOT NULL,
-password VARCHAR(255) NOT NULL,
-role VARCHAR(50) DEFAULT 'user'
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user'
 );
 
--- Scans Table
 CREATE TABLE scans (
-id INT AUTO_INCREMENT PRIMARY KEY,
-filename VARCHAR(255),
-risk VARCHAR(100),
-status VARCHAR(100)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(255),
+    risk VARCHAR(100),
+    status VARCHAR(100)
 );
 
--- Audit Logs Table
 CREATE TABLE audit_logs (
-id INT AUTO_INCREMENT PRIMARY KEY,
-username VARCHAR(100),
-action VARCHAR(255),
-timestamp VARCHAR(100)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100),
+    action VARCHAR(255),
+    timestamp VARCHAR(100)
 );
