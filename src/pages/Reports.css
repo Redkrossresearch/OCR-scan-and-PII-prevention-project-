@@ -1,0 +1,22 @@
+.report-export-card {
+  text-align: center;
+  padding: 32px 24px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.report-export-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-glow);
+}
+.report-export-card h3 { font-size: 16px; margin-bottom: 6px; }
+.report-export-card p  { font-size: 13px; color: var(--text-muted); }
+
+.mb-32 { margin-bottom: 32px; }
+
+.reports-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
