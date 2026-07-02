@@ -1,0 +1,28 @@
+{
+    "pan_numbers": [
+        "ABCDE1234F",
+        "PQRSX5678K",
+        "LMNOP9876Q"
+    ],
+
+    "aadhaar_numbers": [
+        "123412341234",
+        "567856785678"
+    ],
+
+    "phone_numbers": [
+        "9876543210",
+        "9123456789"
+    ],
+
+    "emails": [
+        "admin@company.com",
+        "hr@company.com",
+        "security@company.com"
+    ],
+
+    "passport_numbers": [
+        "A1234567",
+        "N9876543"
+    ]
+}

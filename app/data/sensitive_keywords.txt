@@ -1,0 +1,14 @@
+confidential
+internal
+salary
+payroll
+secret
+classified
+restricted
+financial
+invoice
+bank account
+upi
+password
+api key
+token
