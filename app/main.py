@@ -1,3 +1,12 @@
+from app.api.policy_alerts import router as policy_alert_router
+from app.api.email_dlp import router as email_dlp_router
+from app.api.clipboard import router as clipboard_router
+from app.api.print_control import router as print_control_router
+from app.api.usb_control import router as usb_control_router
+from app.api.file_type_blocking import router as file_type_router
+from app.api.shadow_ai import router as shadow_ai_router
+from app.api.ueba import router as ueba_router
+from app.api.forensic import router as forensic_router
 from fastapi import FastAPI
 
 from app.database.database import engine
@@ -19,6 +28,15 @@ app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(ocr_router)
 app.include_router(pii_router)
+app.include_router(policy_alert_router)
+app.include_router(email_dlp_router)
+app.include_router(clipboard_router)
+app.include_router(print_control_router)
+app.include_router(usb_control_router)
+app.include_router(file_type_router)
+app.include_router(shadow_ai_router)
+app.include_router(ueba_router)
+app.include_router(forensic_router)
 
 app.mount(
     "/uploads",
