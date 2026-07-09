@@ -1,21 +1,53 @@
-from datetime import datetime
+from models import DocumentOwnership
+from database import SessionLocal
 
 
 class OwnershipTracker:
 
-    def __init__(self):
-        self.records = []
-
     def add_record(self, filename, user, action):
-        record = {
-            "filename": filename,
-            "user": user,
-            "action": action,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        db = SessionLocal()
+
+        record = DocumentOwnership(
+            filename=filename,
+            uploader=user,
+            action=action
+        )
+
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+
+        db.close()
+
+        return {
+            "id": record.id,
+            "filename": record.filename,
+            "user": record.uploader,
+            "action": record.action,
+            "timestamp": record.timestamp
         }
 
-        self.records.append(record)
-        return record
-
     def get_records(self):
-        return self.records
+
+        db = SessionLocal()
+
+        records = db.query(DocumentOwnership).all()
+
+        result = []
+
+        for record in records:
+
+            result.append({
+
+                "id": record.id,
+                "filename": record.filename,
+                "user": record.uploader,
+                "action": record.action,
+                "timestamp": record.timestamp
+
+            })
+
+        db.close()
+
+        return result

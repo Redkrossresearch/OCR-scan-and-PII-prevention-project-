@@ -15,7 +15,10 @@ from fastapi.responses import FileResponse
 from scheduler import BatchReportScheduler
 from expiry import DocumentExpiryManager
 from audit import AuditLogger
+from database import engine, Base
+from models import DocumentOwnership
 
+Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="OCR-Based DLP Backend",
     version="1.0"
