@@ -1,42 +1,46 @@
+from app.models.forensic_log import ForensicLog
 from datetime import datetime
 
 
 class ForensicService:
 
     def __init__(self):
-        self.forensic_logs = []
-
+        pass
 
     def create_forensic_record(
         self,
-        user: str,
-        action: str,
-        document: str
+        db,
+        user,
+        action,
+        document
     ):
 
-        record = {
-            "user": user,
-            "action": action,
-            "document": document,
-            "timestamp": str(datetime.now()),
-            "status": "Recorded"
-        }
+        new_log = ForensicLog(
+            user=user,
+            action=action,
+            document=document,
+            timestamp=datetime.now(),
+            status="Recorded"
+        )
 
-
-        self.forensic_logs.append(record)
-
+        db.add(new_log)
+        db.commit()
+        db.refresh(new_log)
 
         return {
             "success": True,
             "message": "Forensic record created",
-            "record": record
+            "record": new_log
         }
 
+    def get_forensic_logs(
+        self,
+        db
+    ):
 
-
-    def get_forensic_logs(self):
+        logs = db.query(ForensicLog).all()
 
         return {
-            "total_records": len(self.forensic_logs),
-            "records": self.forensic_logs
+            "total_records": len(logs),
+            "records": logs
         }

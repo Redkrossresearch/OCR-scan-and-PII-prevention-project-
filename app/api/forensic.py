@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Form
 
 from app.services.forensic_service import ForensicService
+from sqlalchemy.orm import Session
+from fastapi import Depends
 
+from app.database.database import get_db
 
 router = APIRouter(
     prefix="/forensic",
@@ -17,18 +20,20 @@ service = ForensicService()
 def create_record(
     user: str = Form(...),
     action: str = Form(...),
-    document: str = Form(...)
+    document: str = Form(...),
+    db: Session = Depends(get_db)
 ):
-
     return service.create_forensic_record(
-        user,
-        action,
-        document
+    db,
+    user,
+    action,
+    document
     )
 
 
-
 @router.get("/logs")
-def get_forensic_logs():
+def get_forensic_logs(
+    db: Session = Depends(get_db)
+):
 
-    return service.get_forensic_logs()
+    return service.get_forensic_logs(db)

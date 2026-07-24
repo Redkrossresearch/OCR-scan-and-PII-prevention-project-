@@ -6,7 +6,10 @@ import os
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
+print("DATABASE URL =", DATABASE_URL)
+print("Current Directory:", os.getcwd())
+print("Database URL:", DATABASE_URL)
+print("Absolute DB Path:", os.path.abspath("ocr_dlp.db"))
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False}
