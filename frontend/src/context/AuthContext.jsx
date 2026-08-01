@@ -3,21 +3,8 @@ import { auth, audit } from '../services/api';
 
 const AuthContext = createContext(null);
 
-function readSavedUser() {
-  const token = localStorage.getItem('token');
-  const savedUser = localStorage.getItem('user');
-  if (token && savedUser) {
-    try {
-      return JSON.parse(savedUser);
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readSavedUser);
+  const [user, setUser] = useState(null);
   const loading = false;
 
   const login = async (email, password) => {
