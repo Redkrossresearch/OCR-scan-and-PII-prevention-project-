@@ -3,7 +3,11 @@ import shutil
 import hashlib
 from datetime import datetime
 
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Depends
+from sqlalchemy.orm import Session
+
+from app.database.database import get_db
+from app.models.document import Document
 
 
 router = APIRouter(
@@ -84,27 +88,11 @@ class AuditLogger:
         return {"success": True, "total_logs": len(self.logs), "logs": self.logs}
 
 
-class DashboardAnalytics:
-    def __init__(self):
-        self.data = {
-            "total_documents": 0,
-            "classified_documents": 0,
-            "watermark_detected": 0,
-            "tampered_documents": 0,
-            "risk_documents": 0,
-            "expired_documents": 0
-        }
-
-    def get_dashboard(self):
-        return {"success": True, "dashboard": self.data}
-
 
 ownership_tracker = OwnershipTracker()
 classifier = DocumentClassifier()
 risk_controller = RiskAccessControl()
 audit_logger = AuditLogger()
-dashboard_analytics = DashboardAnalytics()
-
 
 @router.post("/watermark/check")
 async def watermark_check(file: UploadFile = File(...)):
@@ -207,5 +195,15 @@ def get_audit_logs():
 
 
 @router.get("/dashboard")
-def get_dashboard():
-    return dashboard_analytics.get_dashboard()
+def get_dashboard(db: Session = Depends(get_db)):
+    return {
+        "success": True,
+        "dashboard": {
+            "total_documents": db.query(Document).count(),
+            "classified_documents": db.query(Document).filter(Document.classification.isnot(None)).count(),
+            "watermark_detected": db.query(Document).filter(Document.watermark_detected.is_(True)).count(),
+            "tampered_documents": db.query(Document).filter(Document.tampered.is_(True)).count(),
+            "risk_documents": db.query(Document).filter(Document.risk_level.in_(["HIGH", "CRITICAL"])).count(),
+            "expired_documents": db.query(Document).filter(Document.is_expired.is_(True)).count(),
+        },
+    }

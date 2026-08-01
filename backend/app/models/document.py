@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
 from datetime import datetime
 
 from app.database.database import Base
@@ -13,3 +13,8 @@ class Document(Base):
     file_type = Column(String)
     uploaded_by = Column(String, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+    classification = Column(String, nullable=True)
+    risk_level = Column(String, nullable=True)
+    watermark_detected = Column(Boolean, default=False)
+    tampered = Column(Boolean, default=False)
+    is_expired = Column(Boolean, default=False)

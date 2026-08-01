@@ -20,8 +20,8 @@ def extract_text_from_image(image_path: str) -> str:
         raise FileNotFoundError(f"Image not found: {image_path}")
 
     try:
-        image = Image.open(image_path)
-        text = pytesseract.image_to_string(image)
+        with Image.open(image_path) as image:
+            text = pytesseract.image_to_string(image)
 
         return text.strip()
 
@@ -48,12 +48,11 @@ def extract_image_data(image_path: str):
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Image not found: {image_path}")
 
-    image = Image.open(image_path)
-
-    data = pytesseract.image_to_data(
-        image,
-        output_type=pytesseract.Output.DICT
-    )
+    with Image.open(image_path) as image:
+        data = pytesseract.image_to_data(
+            image,
+            output_type=pytesseract.Output.DICT
+        )
 
     results = []
 
@@ -117,11 +116,10 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
                 pix.save(temp_path)
 
-                image = Image.open(temp_path)
-
-                extracted_text += (
-                    pytesseract.image_to_string(image) + "\n"
-                )
+                with Image.open(temp_path) as image:
+                    extracted_text += (
+                        pytesseract.image_to_string(image) + "\n"
+                    )
 
             finally:
 

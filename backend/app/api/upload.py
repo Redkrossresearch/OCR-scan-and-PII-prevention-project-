@@ -12,6 +12,7 @@ from app.services.file_service import save_uploaded_file
 from app.core.dependencies import get_current_user
 from app.database.database import get_db
 from app.services.audit_service import AuditService
+from app.models.document import Document
 
 router = APIRouter(
     prefix="/upload",
@@ -38,25 +39,43 @@ def upload_document(
 
     extension = file.filename.split(".")[-1].lower()
 
+    # Check file type
     if extension not in ALLOWED_TYPES:
         AuditService.log(
             db,
             current_user,
             "UPLOAD_REJECTED",
-            "Rejected upload of '%s' (unsupported type '.%s')" % (file.filename, extension),
+            "Rejected upload of '%s' (unsupported type '.%s')" %
+            (file.filename, extension),
         )
+
         raise HTTPException(
             status_code=400,
             detail="Unsupported file type"
         )
 
+    # Save uploaded file
     filename = save_uploaded_file(file)
 
+    # Create document record in database
+    document = Document(
+        filename=filename,
+        filepath=f"uploads/{filename}",
+        file_type=extension,
+        uploaded_by=current_user
+    )
+
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+    # Create audit log
     AuditService.log(
         db,
         current_user,
         "DOCUMENT_UPLOADED",
-        "Uploaded '%s' as '%s'" % (file.filename, filename),
+        "Uploaded '%s' as '%s'" %
+        (file.filename, filename),
     )
 
     return {

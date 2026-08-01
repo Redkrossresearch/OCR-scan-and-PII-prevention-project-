@@ -39,6 +39,9 @@ from app.services.ocr_service import (
 from app.core.dependencies import get_current_user
 from app.database.database import get_db
 from app.services.audit_service import AuditService
+from app.models.document import Document
+from app.models.scan_result import ScanResult
+from app.models.pii_detection import PIIDetection
 
 
 router = APIRouter(
@@ -117,32 +120,42 @@ def detect_pii(
                 result,
                 ocr_data,
             )
+
         keywords = KeywordService.detect(extracted_text)
+
         risk = RiskService.calculate(
             result,
             keywords,
         )
-        classification = ClassificationService.classify(risk["risk_level"])
+
+        classification = ClassificationService.classify(
+            risk["risk_level"]
+        )
+
         edm_matches = EDMService.match(result)
 
         watermark = {
             "watermark_detected": False,
             "watermark_details": [],
         }
+
         signature = {
             "digital_signature_present": False,
             "digital_signatures": [],
         }
+
         tamper = {
             "tampered": False,
             "reasons": [],
         }
+
         ownership = {
             "owner": "",
             "creator": "",
             "producer": "",
             "company": "",
         }
+
         access = AccessService.evaluate(
             risk["risk_level"]
         )
@@ -160,6 +173,7 @@ def detect_pii(
             tamper = TamperService.analyze(
                 temp_path
             )
+
         if extension == "pdf":
             ownership = OwnershipService.analyze(temp_path)
 
@@ -182,6 +196,77 @@ def detect_pii(
                 classification,
             ),
         )
+
+        # Find the document that was uploaded by the current user
+        document = (
+            db.query(Document)
+            .filter(
+                Document.file_type == extension,
+                Document.uploaded_by == current_user,
+            )
+            .order_by(Document.uploaded_at.desc())
+            .first()
+        )
+
+        # If document is not found, create a record
+        if document is None:
+
+            document = Document(
+                filename=file.filename,
+                filepath=f"uploads/{file.filename}",
+                file_type=extension,
+                uploaded_by=current_user,
+            )
+
+            db.add(document)
+            db.commit()
+            db.refresh(document)
+
+        # Update document analysis information
+        document.classification = classification
+
+        document.risk_level = risk["risk_level"]
+
+        document.watermark_detected = bool(
+            watermark["watermark_detected"]
+        )
+
+        document.tampered = bool(
+            tamper["tampered"]
+        )
+
+        db.commit()
+        db.refresh(document)
+
+        # Create scan result
+        scan = ScanResult(
+            document_id=document.id,
+            extracted_text=extracted_text,
+            risk_score=risk["risk_score"],
+            risk_level=risk["risk_level"],
+        )
+
+        db.add(scan)
+        db.commit()
+        db.refresh(scan)
+
+        # Store each detected PII item
+        for pii_type, values in result.items():
+
+            if isinstance(values, list):
+
+                for value in values:
+
+                    detection = PIIDetection(
+                        scan_id=scan.id,
+                        pii_type=pii_type,
+                        detected_value=str(value),
+                        confidence=1.0,
+                    )
+
+                    db.add(detection)
+
+        db.commit()
 
         return {
             **result,
@@ -262,20 +347,24 @@ def redact_document(
         result = PIIDetector.detect(extracted_text)
 
         if extension == "pdf":
+
             redacted_path = RedactionService.redact_pdf(
                 temp_path,
                 result,
-                )
+            )
+
         else:
+
             redacted_path = RedactionService.redact_image(
                 temp_path,
                 result,
                 ocr_data,
             )
+
             return {
-            "message": "Document redacted successfully",
-            "redacted_file": f"/uploads/redacted/{Path(redacted_path).name}",
-        }
+                "message": "Document redacted successfully",
+                "redacted_file": f"/uploads/redacted/{Path(redacted_path).name}",
+            }
 
     except Exception as e:
 
@@ -288,6 +377,8 @@ def redact_document(
 
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
+
+
 @router.post("/blur")
 def blur_document(
     file: UploadFile = File(...),
@@ -297,6 +388,7 @@ def blur_document(
     extension = file.filename.split(".")[-1].lower()
 
     if extension not in ALLOWED_TYPES:
+
         raise HTTPException(
             status_code=400,
             detail="Unsupported file type",
