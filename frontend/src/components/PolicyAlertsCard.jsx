@@ -41,14 +41,14 @@ function PolicyAlertsCard() {
       {report && alert?.ok && (
         <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 mb-4">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <p className="text-white font-semibold">{alert.data?.alert?.policy_name || alert.data?.policy_name}</p>
-            <div className="flex gap-2">
+            <p className="text-white font-semibold min-w-0 break-words">{alert.data?.alert?.policy_name || alert.data?.policy_name}</p>
+            <div className="flex gap-2 shrink-0">
               <StatusBadge status={alert.data?.alert?.severity || alert.data?.severity} />
               <StatusBadge status="active" />
             </div>
           </div>
-          <p className="text-gray-300 text-sm">{alert.data?.alert?.description || alert.data?.description}</p>
-          <p className="text-gray-500 text-xs mt-2">{alert.data?.message}</p>
+          <p className="text-gray-300 text-sm break-words">{alert.data?.alert?.description || alert.data?.description}</p>
+          <p className="text-gray-500 text-xs mt-2 break-words">{alert.data?.message}</p>
         </div>
       )}
 
@@ -67,9 +67,9 @@ function PolicyAlertsCard() {
                 key={item.id || idx}
                 className="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3"
               >
-                <div>
-                  <p className="text-white text-sm font-medium">{item.policy_name}</p>
-                  <p className="text-gray-500 text-xs">
+                <div className="min-w-0">
+                  <p className="text-white text-sm font-medium break-words">{item.policy_name}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">
                     {item.created_at ? `Created ${new Date(item.created_at).toLocaleString()}` : 'Recently created'}
                   </p>
                 </div>

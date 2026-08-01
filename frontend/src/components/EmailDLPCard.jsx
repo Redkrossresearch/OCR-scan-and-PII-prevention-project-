@@ -19,9 +19,9 @@ function EmailDLPCard() {
       {report && emailDlp?.ok && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-white font-medium">{emailDlp.data?.subject || emailDlp.data?.input?.subject}</p>
-              <p className="text-gray-500 text-sm">
+            <div className="min-w-0">
+              <p className="text-white font-medium truncate max-w-full">{emailDlp.data?.subject || emailDlp.data?.input?.subject}</p>
+              <p className="text-gray-500 text-sm truncate max-w-full">
                 {emailDlp.data?.input?.sender || emailDlp.data?.sender} → {emailDlp.data?.input?.receiver || emailDlp.data?.receiver}
               </p>
             </div>
@@ -46,14 +46,14 @@ function EmailDLPCard() {
 
           <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
             <p className="text-gray-400 text-xs mb-1">Detected Sensitive Types</p>
-            <p className="text-white text-sm">
+            <p className="text-white text-sm break-words">
               {emailDlp.data?.detected_types?.length
                 ? emailDlp.data.detected_types.map((t) => t.toUpperCase()).join(', ')
                 : 'None found'}
             </p>
           </div>
 
-          <p className="text-gray-500 text-xs">{emailDlp.data?.message}</p>
+          <p className="text-gray-500 text-xs break-words">{emailDlp.data?.message}</p>
         </div>
       )}
     </Card>

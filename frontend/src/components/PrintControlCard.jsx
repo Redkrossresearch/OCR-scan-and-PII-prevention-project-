@@ -27,7 +27,7 @@ function PrintControlCard() {
               printControl.data?.allowed ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'
             }`}
           >
-            <p className={`text-sm ${printControl.data?.allowed ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-sm break-words ${printControl.data?.allowed ? 'text-green-400' : 'text-red-400'}`}>
               {printControl.data?.message}
             </p>
           </div>

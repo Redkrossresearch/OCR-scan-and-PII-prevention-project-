@@ -30,7 +30,7 @@ function USBControlCard() {
 
           <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
             <p className="text-gray-400 text-xs mb-1">Device Information</p>
-            <p className="text-white text-sm">{usbControl.data?.input?.device_name}</p>
+            <p className="text-white text-sm break-words">{usbControl.data?.input?.device_name}</p>
             <p className="text-gray-500 text-xs mt-1">User Role: {usbControl.data?.input?.user_role}</p>
           </div>
 
@@ -39,7 +39,7 @@ function USBControlCard() {
               usbControl.data?.usb_allowed ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'
             }`}
           >
-            <p className={`text-sm ${usbControl.data?.usb_allowed ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`text-sm break-words ${usbControl.data?.usb_allowed ? 'text-green-400' : 'text-red-400'}`}>
               {usbControl.data?.message}
             </p>
           </div>

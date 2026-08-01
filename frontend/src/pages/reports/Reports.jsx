@@ -60,23 +60,23 @@ function ReportsPage() {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-2">Reports</h1>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Reports</h1>
       <p className="text-gray-400 mb-8">
         Generate formatted security assessment reports from the most recent document analysis.
       </p>
 
       {report && (
-        <div className="bg-slate-900 rounded-2xl p-5 border border-blue-500/20 mb-6 max-w-4xl">
+        <div className="dli-panel p-5 border-indigo-500/20 mb-6 max-w-4xl">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <p className="text-white font-semibold">{report.document.filename}</p>
+            <div className="min-w-0">
+              <p className="text-white font-semibold break-words">{report.document.filename}</p>
               <p className="text-gray-500 text-sm">
                 Risk: <span className="text-white">{report.risk.risk_level}</span> &middot; Score:{' '}
                 {report.risk.risk_score} &middot; {new Date(report.document.scanned_at).toLocaleString()}
               </p>
             </div>
-            <Link to="/ocr" className="text-blue-400 hover:text-blue-300 text-sm">
+            <Link to="/ocr" className="text-indigo-400 hover:text-indigo-300 text-sm">
               Run new analysis &rarr;
             </Link>
           </div>
@@ -84,13 +84,13 @@ function ReportsPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-        <div className="bg-slate-900 rounded-2xl p-6 border border-green-500/20 hover:scale-105 transition-all duration-300 shadow-lg">
+        <div className="dli-panel p-6 border-green-500/20 hover:scale-[1.02] transition-transform duration-300">
           <h2 className="text-white text-xl font-bold mb-2">CSV Report</h2>
           <p className="text-gray-400 text-sm mb-4">
             Structured spreadsheet with document info, risk summary, PII detections per category, DLP control results,
             AI &amp; behavior, compliance and recommendations.
           </p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-gray-600 text-sm">Format: .csv</span>
             <button onClick={downloadCSV} disabled={loadingCSV || !report}
               className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm">
@@ -103,13 +103,13 @@ function ReportsPage() {
             </p>
           )}
         </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-red-500/20 hover:scale-105 transition-all duration-300 shadow-lg">
+        <div className="dli-panel p-6 border-red-500/20 hover:scale-[1.02] transition-transform duration-300">
           <h2 className="text-white text-xl font-bold mb-2">PDF Assessment Report</h2>
           <p className="text-gray-400 text-sm mb-4">
             Enterprise-grade multi-page Cybersecurity / DLP assessment: executive summary, PII table, risk analysis,
             DLP controls, compliance and charts.
           </p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-gray-600 text-sm">Format: .pdf</span>
             <button onClick={downloadPDF} disabled={loadingPDF}
               className="bg-slate-800 hover:bg-slate-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm">

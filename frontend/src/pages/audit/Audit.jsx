@@ -64,24 +64,24 @@ function AuditPage() {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-2">Audit Logs</h1>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Audit Logs</h1>
       <p className="text-gray-500 mb-8">
         Persistent, timestamped trail of every important action across the platform.
       </p>
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-4 mb-6">
         <div className="flex border border-slate-800 rounded-xl overflow-hidden">
           <button onClick={() => setActiveTab('internal')}
-            className={`px-5 py-2.5 text-sm font-medium transition-colors ${activeTab === 'internal' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-gray-400 hover:text-white'}`}>
+            className={`px-5 py-2.5 text-sm font-medium transition-colors ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-gray-400 hover:text-white'}`}>
             Internal Audit ({internalLogs.length})
           </button>
           <button onClick={() => setActiveTab('forensic')}
-            className={`px-5 py-2.5 text-sm font-medium transition-colors ${activeTab === 'forensic' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-gray-400 hover:text-white'}`}>
+            className={`px-5 py-2.5 text-sm font-medium transition-colors ${activeTab === 'forensic' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-gray-400 hover:text-white'}`}>
             Forensic Logs ({forensicLogs.length})
           </button>
         </div>
         <input type="text" placeholder="Filter by user, action or detail..." value={filter} onChange={(e) => setFilter(e.target.value)}
-          className="flex-1 bg-slate-900 border border-slate-800 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+          className="flex-1 min-w-52 bg-slate-900 border border-slate-800 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
         <button onClick={loadLogs}
           className="bg-slate-800 hover:bg-slate-700 text-gray-300 px-4 py-2.5 rounded-xl text-sm transition-colors">
           Refresh
@@ -90,34 +90,36 @@ function AuditPage() {
       {loading ? (
         <div className="text-center py-12 text-gray-500">Loading logs...</div>
       ) : (
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+        <div className="dli-panel overflow-hidden">
           {filteredLogs.length === 0 ? (
             <div className="text-center py-12 text-gray-500">No logs found.</div>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-800">
-                  <th className="text-left text-gray-400 py-3 px-6 text-sm">#</th>
-                  <th className="text-left text-gray-400 py-3 px-6 text-sm">User</th>
-                  <th className="text-left text-gray-400 py-3 px-6 text-sm">Action</th>
-                  <th className="text-left text-gray-400 py-3 px-6 text-sm">Details</th>
-                  <th className="text-left text-gray-400 py-3 px-6 text-sm">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLogs.map((log, i) => (
-                  <tr key={log.id ?? i} className="border-b border-slate-800/50 hover:bg-slate-800/30">
-                    <td className="text-gray-500 py-3 px-6">{i + 1}</td>
-                    <td className="text-white py-3 px-6">{log.user}</td>
-                    <td className="py-3 px-6">
-                      <span className={`${actionColor(log.action)} px-3 py-1 rounded-lg text-sm`}>{log.action}</span>
-                    </td>
-                    <td className="text-gray-300 py-3 px-6 text-sm">{log.details || log.document}</td>
-                    <td className="text-gray-500 py-3 px-6 text-sm whitespace-nowrap">{log.created_at || log.timestamp}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px]">
+                <thead>
+                  <tr className="border-b border-slate-800">
+                    <th className="text-left text-gray-400 py-3 px-6 text-sm">#</th>
+                    <th className="text-left text-gray-400 py-3 px-6 text-sm">User</th>
+                    <th className="text-left text-gray-400 py-3 px-6 text-sm">Action</th>
+                    <th className="text-left text-gray-400 py-3 px-6 text-sm">Details</th>
+                    <th className="text-left text-gray-400 py-3 px-6 text-sm">Timestamp</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredLogs.map((log, i) => (
+                    <tr key={log.id ?? i} className="border-b border-slate-800/50 last:border-0 hover:bg-slate-800/30 transition-colors">
+                      <td className="text-gray-500 py-3 px-6">{i + 1}</td>
+                      <td className="text-white py-3 px-6 break-words">{log.user}</td>
+                      <td className="py-3 px-6">
+                        <span className={`${actionColor(log.action)} px-3 py-1 rounded-lg text-sm whitespace-nowrap`}>{log.action}</span>
+                      </td>
+                      <td className="text-gray-300 py-3 px-6 text-sm break-words">{log.details || log.document}</td>
+                      <td className="text-gray-500 py-3 px-6 text-sm whitespace-nowrap">{log.created_at || log.timestamp}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

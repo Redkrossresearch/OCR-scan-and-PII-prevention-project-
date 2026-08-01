@@ -40,7 +40,7 @@ function ClipboardCard() {
 
           <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
             <p className="text-gray-400 text-xs mb-1">Sensitive Data Details</p>
-            <p className="text-white text-sm">{sensitiveData}</p>
+            <p className="text-white text-sm break-words">{sensitiveData}</p>
           </div>
 
           <div
@@ -48,7 +48,7 @@ function ClipboardCard() {
               clipboard.data?.blocked ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'
             }`}
           >
-            <p className={`text-sm ${clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'}`}>{clipboard.data?.reason}</p>
+            <p className={`text-sm break-words ${clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'}`}>{clipboard.data?.reason}</p>
           </div>
         </div>
       )}

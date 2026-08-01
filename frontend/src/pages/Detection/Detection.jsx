@@ -69,10 +69,10 @@ function DetectionPage() {
   ] : [];
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-8">PII Detection</h1>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-8">PII Detection</h1>
       <div className="max-w-4xl">
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 mb-6">
+        <div className="dli-panel p-5 md:p-6 mb-6">
           <label className="block text-gray-400 text-sm mb-3">Select a document to scan for PII</label>
           <div className="flex gap-4">
             <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileSelect}
@@ -89,25 +89,25 @@ function DetectionPage() {
         {result && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 text-center">
+              <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Risk Score</p>
-                <p className={`text-3xl font-bold ${result.risk_score > 70 ? 'text-red-400' : result.risk_score > 40 ? 'text-amber-400' : 'text-green-400'}`}>
+                <p className={`text-3xl font-bold mt-1 ${result.risk_score > 70 ? 'text-red-400' : result.risk_score > 40 ? 'text-amber-400' : 'text-green-400'}`}>
                   {result.risk_score}
                 </p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 text-center">
+              <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Risk Level</p>
-                <p className={`text-3xl font-bold ${result.risk_level === 'High' ? 'text-red-400' : result.risk_level === 'Medium' ? 'text-amber-400' : 'text-green-400'}`}>
+                <p className={`text-3xl font-bold mt-1 ${result.risk_level === 'High' ? 'text-red-400' : result.risk_level === 'Medium' ? 'text-amber-400' : 'text-green-400'}`}>
                   {result.risk_level}
                 </p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 text-center">
+              <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Classification</p>
-                <p className="text-3xl font-bold text-blue-400">{result.classification?.classification || 'N/A'}</p>
+                <p className="text-3xl font-bold mt-1 text-indigo-400">{result.classification?.classification || 'N/A'}</p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 text-center">
+              <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Access</p>
-                <p className={`text-3xl font-bold ${result.access_allowed ? 'text-green-400' : 'text-red-400'}`}>
+                <p className={`text-3xl font-bold mt-1 ${result.access_allowed ? 'text-green-400' : 'text-red-400'}`}>
                   {result.access_allowed ? 'Allowed' : 'Denied'}
                 </p>
               </div>
@@ -122,12 +122,12 @@ function DetectionPage() {
                 Blur PII
               </button>
             </div>
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+            <div className="dli-panel overflow-hidden">
               <div className="flex border-b border-slate-800">
                 {['pii', 'security', 'details'].map((tab) => (
                   <button key={tab} onClick={() => setActiveTab(tab)}
                     className={`px-6 py-3 text-sm font-medium transition-colors ${
-                      activeTab === tab ? 'text-blue-400 border-b-2 border-blue-400 bg-slate-800/50' : 'text-gray-500 hover:text-gray-300'
+                      activeTab === tab ? 'text-indigo-400 border-b-2 border-indigo-400 bg-slate-800/50' : 'text-gray-500 hover:text-gray-300'
                     }`}>
                     {tab === 'pii' ? 'PII Found' : tab === 'security' ? 'Security' : 'Details'}
                   </button>
@@ -137,9 +137,9 @@ function DetectionPage() {
                 {activeTab === 'pii' && (
                   <div className="space-y-3">
                     {piiItems.map((item) => (
-                      <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-800/50 last:border-0">
-                        <span className="text-gray-400">{item.label}</span>
-                        <span className={`${item.color} font-medium`}>
+                      <div key={item.label} className="flex items-start justify-between gap-4 py-2 border-b border-slate-800/50 last:border-0">
+                        <span className="text-gray-400 shrink-0">{item.label}</span>
+                        <span className={`${item.color} font-medium text-right min-w-0 break-words`}>
                           {item.value && item.value.length > 0 ? item.value.join(', ') : 'None found'}
                         </span>
                       </div>
@@ -148,32 +148,32 @@ function DetectionPage() {
                 )}
                 {activeTab === 'security' && (
                   <div className="space-y-3">
-                    <div className="flex justify-between py-2 border-b border-slate-800/50">
-                      <span className="text-gray-400">Watermark Detected</span>
+                    <div className="flex items-start justify-between gap-4 py-2 border-b border-slate-800/50">
+                      <span className="text-gray-400 shrink-0">Watermark Detected</span>
                       <span className={result.watermark_detected ? 'text-green-400' : 'text-gray-500'}>
                         {result.watermark_detected ? 'Yes' : 'No'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-slate-800/50">
-                      <span className="text-gray-400">Digital Signature</span>
+                    <div className="flex items-start justify-between gap-4 py-2 border-b border-slate-800/50">
+                      <span className="text-gray-400 shrink-0">Digital Signature</span>
                       <span className={result.digital_signature_present ? 'text-green-400' : 'text-gray-500'}>
                         {result.digital_signature_present ? 'Present' : 'None'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-slate-800/50">
-                      <span className="text-gray-400">Password Protected</span>
+                    <div className="flex items-start justify-between gap-4 py-2 border-b border-slate-800/50">
+                      <span className="text-gray-400 shrink-0">Password Protected</span>
                       <span className={result.is_password_protected ? 'text-amber-400' : 'text-gray-500'}>
                         {result.is_password_protected ? 'Yes' : 'No'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-slate-800/50">
-                      <span className="text-gray-400">Tampered</span>
+                    <div className="flex items-start justify-between gap-4 py-2 border-b border-slate-800/50">
+                      <span className="text-gray-400 shrink-0">Tampered</span>
                       <span className={result.tampered ? 'text-red-400' : 'text-green-400'}>
                         {result.tampered ? 'Yes' : 'No'}
                       </span>
                     </div>
-                    <div className="flex justify-between py-2">
-                      <span className="text-gray-400">EDM Matches</span>
+                    <div className="flex items-start justify-between gap-4 py-2">
+                      <span className="text-gray-400 shrink-0">EDM Matches</span>
                       <span className="text-cyan-400">{result.edm_matches?.length || 0} found</span>
                     </div>
                   </div>
@@ -184,9 +184,9 @@ function DetectionPage() {
                       <div className="mb-4">
                         <h3 className="text-white font-medium mb-2">Risk Breakdown</h3>
                         {Object.entries(result.risk_breakdown).map(([key, value]) => (
-                          <div key={key} className="flex justify-between py-1 text-sm">
-                            <span className="text-gray-400">{key}</span>
-                            <span className="text-gray-300">{value}</span>
+                          <div key={key} className="flex items-start justify-between gap-4 py-1 text-sm">
+                            <span className="text-gray-400 shrink-0 break-words">{key}</span>
+                            <span className="text-gray-300 min-w-0 break-words text-right">{value}</span>
                           </div>
                         ))}
                       </div>

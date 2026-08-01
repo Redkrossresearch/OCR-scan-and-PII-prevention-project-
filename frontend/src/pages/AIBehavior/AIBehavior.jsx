@@ -7,17 +7,17 @@ function AIBehaviorPage() {
   const { report, analyzing } = useDocumentAnalysis();
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
-        <h1 className="text-white text-4xl font-bold">AI & Behavior</h1>
+        <h1 className="font-display text-white text-2xl md:text-3xl font-semibold">AI &amp; Behavior</h1>
         <Link
           to="/ocr"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
         >
           Scan New Document
         </Link>
       </div>
-      <p className="text-gray-400 mb-8">
+      <p className="text-gray-400 mb-8 break-words">
         {report
           ? `Showing AI & behavior analysis for "${report.document.filename}"`
           : analyzing

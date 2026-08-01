@@ -10,22 +10,42 @@ function Navbar() {
     navigate('/login');
   };
 
-  return (
-    <div className="bg-slate-900 border-b border-slate-800 px-8 py-5 flex justify-between items-center">
+  const initials = (user?.email || 'A')
+    .split('@')[0]
+    .split(/[._\- ]+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'A';
 
-      <div>
-        <h1 className="text-white text-3xl font-bold">
+  return (
+    <div className="sticky top-0 z-20 bg-slate-900/80 backdrop-blur border-b border-slate-800/70 px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center gap-3">
+
+      <div className="min-w-0">
+        <h1 className="font-display text-lg md:text-2xl font-semibold text-white truncate">
           AI Data Security Dashboard
         </h1>
+        <p className="hidden sm:block text-[11px] tracking-wide text-slate-500">
+          OCR Data Loss Prevention · Compliance &amp; Governance Console
+        </p>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-white">
-          <span className="text-2xl">👤</span>
-          <span>{user?.email || 'Admin'}</span>
+      <div className="ml-auto flex items-center gap-3">
+        <div className="flex items-center gap-2.5 rounded-xl border border-slate-700/60 bg-slate-800/50 py-1.5 pl-1.5 pr-3">
+          <span className="w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white">
+            {initials}
+          </span>
+          <div className="min-w-0 hidden md:block">
+            <p className="text-xs font-semibold text-white leading-tight truncate max-w-[180px]">
+              {user?.email || 'Admin'}
+            </p>
+            <p className="text-[10px] text-slate-500 leading-tight">Administrator</p>
+          </div>
         </div>
-        <button onClick={handleLogout}
-          className="bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm transition-colors">
+        <button
+          onClick={handleLogout}
+          className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-slate-700/60"
+        >
           Logout
         </button>
       </div>

@@ -136,14 +136,14 @@ function RiskPage() {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-2">Risk Analysis</h1>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Risk Analysis</h1>
       <p className="text-gray-500 mb-8">Risk score and contributing factors computed from the most recent document scan.</p>
 
-      {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6">{error}</div>}
+      {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 break-words">{error}</div>}
 
       {!report ? (
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 text-center">
+        <div className="dli-panel p-12 text-center">
           <div className="text-5xl mb-4">🛡️</div>
           <h2 className="text-white text-xl font-bold mb-2">No analysis yet</h2>
           <p className="text-gray-500 mb-6">
@@ -156,40 +156,40 @@ function RiskPage() {
       ) : (
         <div className="space-y-6">
           {/* Summary row */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="dli-panel p-5 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               <div className="flex justify-center">{riskGauge(riskScore, colors.hex)}</div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-sm text-gray-500 mb-1">Document</div>
-                <div className="text-white font-semibold mb-4">{report.document?.filename || '—'}</div>
+                <div className="text-white font-semibold mb-4 break-words">{report.document?.filename || '—'}</div>
                 <div className="text-sm text-gray-500 mb-1">Risk Level</div>
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${colors.bg} ${colors.text} border ${colors.border}`}>
                   {riskLevel}
                 </span>
                 <div className="text-sm text-gray-500 mt-4 mb-1">Classification</div>
-                <div className="text-white font-semibold">{risk.classification || 'Unclassified'}</div>
+                <div className="text-white font-semibold break-words">{risk.classification || 'Unclassified'}</div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-sm text-gray-500 mb-1">Scanned</div>
-                <div className="text-white mb-4">{report.document?.scanned_at ? new Date(report.document.scanned_at).toLocaleString() : '—'}</div>
+                <div className="text-white mb-4 break-words">{report.document?.scanned_at ? new Date(report.document.scanned_at).toLocaleString() : '—'}</div>
                 <div className="text-sm text-gray-500 mb-1">Analyzed By</div>
-                <div className="text-white">{report.document?.user || '—'}</div>
+                <div className="text-white break-words">{report.document?.user || '—'}</div>
               </div>
             </div>
           </div>
 
           {/* Contributing factors */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="dli-panel p-5 md:p-6">
             <h2 className="text-white text-lg font-bold mb-4">Contributing Factors</h2>
             <div className="space-y-3">
               {factors.map((factor, i) => {
                 const fc = riskColor(factor.weight);
                 return (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-slate-800 bg-slate-950/40">
+                  <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl border border-slate-800 bg-slate-950/40">
                     <span className={`mt-1 w-2.5 h-2.5 rounded-full shrink-0 ${fc.bg} border ${fc.border}`} />
-                    <div>
-                      <div className="text-white font-medium">{factor.label}</div>
-                      <div className="text-gray-500 text-sm">{factor.reason}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium break-words">{factor.label}</div>
+                      <div className="text-gray-500 text-sm mt-0.5 break-words">{factor.reason}</div>
                     </div>
                     <span className={`ml-auto shrink-0 text-xs font-bold uppercase px-2 py-1 rounded-full ${fc.bg} ${fc.text} border ${fc.border}`}>
                       {factor.weight}
@@ -201,15 +201,15 @@ function RiskPage() {
           </div>
 
           {/* Recommendations */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="dli-panel p-5 md:p-6">
             <h2 className="text-white text-lg font-bold mb-4">Recommendations</h2>
             <ol className="space-y-3">
               {recommendations.map((rec, i) => (
                 <li key={i} className="flex gap-3 text-gray-300">
-                  <span className="shrink-0 w-7 h-7 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center text-sm font-bold">
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-sm font-bold">
                     {i + 1}
                   </span>
-                  {rec}
+                  <span className="min-w-0 break-words">{rec}</span>
                 </li>
               ))}
               {recommendations.length === 0 && <li className="text-gray-500">No recommendations available for this scan.</li>}
@@ -217,7 +217,7 @@ function RiskPage() {
           </div>
 
           {/* Access control tool */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="dli-panel p-5 md:p-6">
             <h2 className="text-white text-lg font-bold mb-4">Access Control Check</h2>
             <p className="text-gray-500 text-sm mb-4">
               Evaluate whether a user role should be granted access to a document at the scanned risk level ({riskLevel}).
@@ -226,7 +226,7 @@ function RiskPage() {
               <div>
                 <label className="block text-gray-400 text-sm mb-2">User Role</label>
                 <select value={userRole} onChange={(e) => setUserRole(e.target.value)}
-                  className="w-48 bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                  className="w-48 bg-slate-800/70 border border-slate-700/70 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors">
                   <option value="viewer">Viewer</option>
                   <option value="employee">Employee</option>
                   <option value="manager">Manager</option>
@@ -244,11 +244,11 @@ function RiskPage() {
                   ? 'bg-green-500/10 border-green-500/30'
                   : 'bg-red-500/10 border-red-500/30'
               }`}>
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3">
                   <span className={`text-2xl font-bold ${String(accessResult.access).toLowerCase() === 'granted' || accessResult.access_allowed ? 'text-green-400' : 'text-red-400'}`}>
                     {accessResult.access || (accessResult.access_allowed ? 'Granted' : 'Denied')}
                   </span>
-                  <span className="text-gray-400 text-sm">{(accessResult.reason || accessResult.message || accessResult.access_reason || '').toString()}</span>
+                  <span className="text-gray-400 text-sm min-w-0 break-words">{(accessResult.reason || accessResult.message || accessResult.access_reason || '').toString()}</span>
                 </div>
               </div>
             )}

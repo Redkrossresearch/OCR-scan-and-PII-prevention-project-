@@ -34,16 +34,13 @@ function ProtectedRoute({ children }) {
 
 function AppLayout() {
   return (
-    <div style={{ display: "flex" }}>
+    <div className="min-h-screen bg-slate-950 text-slate-200">
       <Sidebar />
-      <div style={{ flex: 1 }}>
+      <div className="min-h-screen ml-64">
         <Navbar />
-        <div style={{ padding: "20px" }}>
+        <main>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            
-          
-            <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/ocr" element={<OCR />} />
             <Route path="/detection" element={<Detection />} />
@@ -53,7 +50,7 @@ function AppLayout() {
             <Route path="/dlp-controls" element={<DLPControls />} />
             <Route path="/ai-behavior" element={<AIBehavior />} />
           </Routes>
-        </div>
+        </main>
       </div>
     </div>
   );

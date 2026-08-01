@@ -49,8 +49,9 @@ function UploadPage() {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-8">Upload Document</h1>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Upload Document</h1>
+      <p className="text-gray-500 mb-8">Upload a supported document to begin the security pipeline.</p>
       <div className="max-w-2xl">
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -58,13 +59,13 @@ function UploadPage() {
           onDrop={handleDrop}
           onClick={() => fileRef.current?.click()}
           className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 ${
-            dragOver ? 'border-blue-500 bg-blue-500/10' : 'border-slate-700 hover:border-slate-600 bg-slate-900'
+            dragOver ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-700 hover:border-slate-600 bg-slate-900'
           }`}
         >
           <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileSelect} className="hidden" />
           {file ? (
             <div>
-              <p className="text-white font-medium mb-2">{file.name}</p>
+              <p className="text-white font-medium mb-2 break-words">{file.name}</p>
               <p className="text-gray-500 text-sm">{formatSize(file.size)}</p>
             </div>
           ) : (
@@ -76,17 +77,17 @@ function UploadPage() {
         </div>
         {file && (
           <button onClick={handleUpload} disabled={uploading}
-            className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50">
+            className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50">
             {uploading ? 'Uploading...' : 'Upload Document'}
           </button>
         )}
         {error && (
-          <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl">{error}</div>
+          <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl break-words">{error}</div>
         )}
         {result && (
           <div className="mt-4 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl">
             <p className="font-medium">Upload Successful</p>
-            <p className="text-sm">{result.message}</p>
+            <p className="text-sm break-words">{result.message}</p>
           </div>
         )}
       </div>

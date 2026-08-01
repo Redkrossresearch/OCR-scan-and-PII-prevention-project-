@@ -70,9 +70,9 @@ function UEBACard() {
             <p className="text-white text-sm font-semibold">{uebaResult.data?.input?.access_count}</p>
           </div>
 
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
-            <p className="text-blue-400 text-xs mb-1">Recommendations</p>
-            <p className="text-gray-200 text-sm">{recommendations}</p>
+          <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4">
+            <p className="text-indigo-300 text-xs mb-1">Recommendations</p>
+            <p className="text-gray-200 text-sm break-words">{recommendations}</p>
           </div>
 
           <div
@@ -80,7 +80,7 @@ function UEBACard() {
               anomaly ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'
             }`}
           >
-            <p className={`text-sm ${anomaly ? 'text-red-400' : 'text-green-400'}`}>{uebaResult.data?.message}</p>
+            <p className={`text-sm break-words ${anomaly ? 'text-red-400' : 'text-green-400'}`}>{uebaResult.data?.message}</p>
           </div>
         </div>
       )}
@@ -99,8 +99,8 @@ function UEBACard() {
                   key={i}
                   className="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3"
                 >
-                  <div>
-                    <p className="text-white text-sm font-medium capitalize">{a.action}</p>
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-medium capitalize break-words">{a.action}</p>
                     <p className="text-gray-500 text-xs">Access count: {a.access_count}</p>
                   </div>
                   <StatusBadge status={a.risk_level} />

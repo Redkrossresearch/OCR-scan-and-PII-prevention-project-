@@ -40,7 +40,7 @@ function FileTypeBlockingCard() {
             }`}
           >
             <p
-              className={`text-sm ${
+              className={`text-sm break-words ${
                 status === 'allowed'
                   ? 'text-green-400'
                   : status === 'blocked'

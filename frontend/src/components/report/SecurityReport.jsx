@@ -28,10 +28,12 @@ const PII_COUNTS = [
 
 function Section({ icon, title, children }) {
   return (
-    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-      <div className="flex items-center gap-3 mb-4">
-        <span className="text-blue-400 text-xl">{icon}</span>
-        <h2 className="text-white text-lg font-bold">{title}</h2>
+    <div className="dli-panel p-5 md:p-6">
+      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800/60">
+        <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-base">
+          {icon}
+        </span>
+        <h2 className="text-white text-base md:text-lg font-semibold truncate">{title}</h2>
       </div>
       {children}
     </div>
@@ -46,12 +48,12 @@ function DocumentSection({ document }) {
   return (
     <Section icon={<FaFileAlt />} title="Document Information">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatBox label="Filename" value={document.filename} color="text-blue-400" />
+        <StatBox label="Filename" value={document.filename} color="text-indigo-300" className="col-span-2 md:col-span-1" />
         <StatBox label="Size" value={size} color="text-gray-300" />
         <StatBox label="Type" value={document.extension ? `.${document.extension}` : 'Unknown'} color="text-gray-300" />
         <StatBox label="Scanned By" value={document.user} color="text-gray-300" />
-        <StatBox label="Scanned At" value={new Date(document.scanned_at).toLocaleString()} color="text-gray-300" />
-        <StatBox label="Upload" value={document.upload?.message || '—'} color="text-green-400" />
+        <StatBox label="Scanned At" value={new Date(document.scanned_at).toLocaleString()} color="text-gray-300" className="col-span-2 md:col-span-1" />
+        <StatBox label="Upload" value={document.upload?.message || '—'} color="text-green-400" className="col-span-2 md:col-span-1" />
       </div>
     </Section>
   );
@@ -63,8 +65,8 @@ function OCRSection({ ocr }) {
   return (
     <Section icon={<FaSearch />} title="OCR Results">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <p className="text-white font-medium">{ocr.data?.filename}</p>
+        <div className="min-w-0">
+          <p className="text-white font-medium truncate max-w-full">{ocr.data?.filename}</p>
           <p className="text-gray-500 text-sm">Type: {String(ocr.data?.file_type || '').toUpperCase()}</p>
         </div>
         <StatusBadge status={text.length > 0 ? 'allowed' : 'unsupported'} />
@@ -117,7 +119,7 @@ function RiskSection({ risk }) {
         <StatBox label="Access" badge={<StatusBadge status={access?.access === 'Granted' ? 'allowed' : 'blocked'} />} />
       </div>
       <ProgressBar label="Risk Score" value={risk.risk_score} />
-      {access && <p className="text-gray-400 text-sm mt-3">Role: {access.role} — {access.access} for {access.risk_level} risk documents</p>}
+      {access && <p className="text-gray-400 text-sm mt-3 break-words">Role: {access.role} — {access.access} for {access.risk_level} risk documents</p>}
     </Section>
   );
 }
@@ -149,18 +151,25 @@ function EmailDLPSection({ emailDlp }) {
   return (
     <Section icon={<FaEnvelope />} title="Email DLP Results">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <p className="text-white font-medium">{d?.subject || d?.input?.subject}</p>
-          <p className="text-gray-500 text-sm">{d?.input?.sender} → {d?.input?.receiver}</p>
+        <div className="min-w-0">
+          <p className="text-white font-medium truncate max-w-full">{d?.subject || d?.input?.subject}</p>
+          <p className="text-gray-500 text-sm truncate max-w-full">
+            {d?.input?.sender} → {d?.input?.receiver}
+          </p>
         </div>
         <StatusBadge status={blocked ? 'blocked' : 'allowed'} />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatBox label="Risk Level" badge={<StatusBadge status={d?.risk_level} />} />
         <StatBox label="Sensitive Data" value={d?.detected_types?.length || 0} color={d?.detected_types?.length ? 'text-red-400' : 'text-green-400'} />
-        <StatBox label="Detected Types" value={d?.detected_types?.length ? d.detected_types.map((t) => t.toUpperCase()).join(', ') : 'None'} color="text-gray-300" />
+        <StatBox
+          label="Detected Types"
+          value={d?.detected_types?.length ? d.detected_types.map((t) => t.toUpperCase()).join(', ') : 'None'}
+          color="text-gray-300"
+          className="col-span-2 md:col-span-1"
+        />
       </div>
-      <p className="text-gray-400 text-sm mt-3">{d?.message}</p>
+      <p className="text-gray-400 text-sm mt-3 break-words">{d?.message}</p>
     </Section>
   );
 }
@@ -175,7 +184,7 @@ function ClipboardSection({ clipboard }) {
         <StatBox label="Sensitive Data" value={clipboard.data?.blocked ? 'Detected' : 'None'} color={clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'} />
       </div>
       <div className={`rounded-xl p-4 border ${clipboard.data?.blocked ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
-        <p className={`text-sm ${clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'}`}>{clipboard.data?.reason}</p>
+        <p className={`text-sm break-words ${clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'}`}>{clipboard.data?.reason}</p>
       </div>
     </Section>
   );
@@ -191,7 +200,7 @@ function PrintSection({ printControl }) {
         <StatBox label="User Role" value={printControl.data?.input?.user_role} color="text-gray-300" className="capitalize" />
       </div>
       <div className={`rounded-xl p-4 border ${printControl.data?.allowed ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-        <p className={`text-sm ${printControl.data?.allowed ? 'text-green-400' : 'text-red-400'}`}>{printControl.data?.message}</p>
+        <p className={`text-sm break-words ${printControl.data?.allowed ? 'text-green-400' : 'text-red-400'}`}>{printControl.data?.message}</p>
       </div>
     </Section>
   );
@@ -207,7 +216,7 @@ function USBSection({ usbControl }) {
         <StatBox label="Device" value={usbControl.data?.input?.device_name} color="text-blue-400" />
       </div>
       <div className={`rounded-xl p-4 border ${usbControl.data?.usb_allowed ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-        <p className={`text-sm ${usbControl.data?.usb_allowed ? 'text-green-400' : 'text-red-400'}`}>{usbControl.data?.message}</p>
+        <p className={`text-sm break-words ${usbControl.data?.usb_allowed ? 'text-green-400' : 'text-red-400'}`}>{usbControl.data?.message}</p>
       </div>
     </Section>
   );
@@ -225,7 +234,7 @@ function FileTypeSection({ fileType }) {
         <StatBox label="Filename" value={fileType.data?.input?.filename} color="text-gray-300" />
       </div>
       <div className={`rounded-xl p-4 border ${status === 'allowed' ? 'bg-green-500/10 border-green-500/30' : status === 'blocked' ? 'bg-red-500/10 border-red-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
-        <p className={`text-sm ${status === 'allowed' ? 'text-green-400' : status === 'blocked' ? 'text-red-400' : 'text-amber-400'}`}>
+        <p className={`text-sm break-words ${status === 'allowed' ? 'text-green-400' : status === 'blocked' ? 'text-red-400' : 'text-amber-400'}`}>
           {fileType.data?.message}
         </p>
       </div>
@@ -258,7 +267,7 @@ function ShadowAISection({ shadowAi, ocr }) {
       </div>
       <ProgressBar label="Risk Score" value={riskScore} />
       <div className={`rounded-xl p-4 border mt-4 ${unsafe ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
-        <p className={`text-sm ${unsafe ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
+        <p className={`text-sm break-words ${unsafe ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
       </div>
     </Section>
   );
@@ -277,7 +286,7 @@ function UEBASection({ ueba }) {
       </div>
       <ProgressBar label="Risk Score" value={ueba.data?.risk_level === 'High' ? 90 : ueba.data?.risk_level === 'Medium' ? 55 : 15} />
       <div className={`rounded-xl p-4 border mt-4 ${anomaly ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
-        <p className={`text-sm ${anomaly ? 'text-red-400' : 'text-green-400'}`}>{ueba.data?.message}</p>
+        <p className={`text-sm break-words ${anomaly ? 'text-red-400' : 'text-green-400'}`}>{ueba.data?.message}</p>
       </div>
     </Section>
   );
@@ -290,9 +299,9 @@ function ComplianceSection({ compliance }) {
       <div className="space-y-3">
         {compliance?.items?.map((item, i) => (
           <div key={i} className="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 rounded-xl px-4 py-3">
-            <div>
-              <p className="text-white text-sm font-medium">{item.name}</p>
-              <p className="text-gray-500 text-xs">{item.detail}</p>
+            <div className="min-w-0">
+              <p className="text-white text-sm font-medium break-words">{item.name}</p>
+              <p className="text-gray-500 text-xs mt-0.5 break-words">{item.detail}</p>
             </div>
             <StatusBadge status={item.status} />
           </div>
@@ -308,8 +317,8 @@ function RecommendationsSection({ recommendations }) {
       <ul className="space-y-3">
         {recommendations?.map((rec, i) => (
           <li key={i} className="flex items-start gap-3 text-gray-200 text-sm">
-            <span className="mt-0.5 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
-            <span>{rec}</span>
+            <span className="mt-1 w-2 h-2 rounded-full bg-indigo-400 shrink-0" />
+            <span className="min-w-0 break-words">{rec}</span>
           </li>
         ))}
       </ul>

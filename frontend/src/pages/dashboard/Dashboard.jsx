@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 import { documentFeatures, audit } from '../../services/api';
 
+const STAT_CARDS = [
+  { key: 'total_documents', label: 'Total Documents', icon: '📄', valueClass: 'text-indigo-400' },
+  { key: 'risk_documents', label: 'High Risk', icon: '⚠️', valueClass: 'text-red-400' },
+  { key: 'watermark_detected', label: 'Watermark Detected', icon: '💧', valueClass: 'text-cyan-400' },
+  { key: 'tampered_documents', label: 'Tampered Docs', icon: '🔧', valueClass: 'text-amber-400' },
+  { key: 'classified_documents', label: 'Classified', icon: '🏷️', valueClass: 'text-green-400' },
+  { key: 'expired_documents', label: 'Expired', icon: '⏳', valueClass: 'text-purple-400' },
+];
+
 function Dashboard() {
   const [stats, setStats] = useState({
     total_documents: 0, classified_documents: 0, watermark_detected: 0,
@@ -41,56 +50,46 @@ function Dashboard() {
   }
 
   return (
-    <div className="bg-slate-950 min-h-screen p-8">
-      <h1 className="text-white text-4xl font-bold mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">Total Documents</p>
-          <h1 className="text-blue-400 text-4xl mt-2">{stats.total_documents}</h1>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">High Risk</p>
-          <h1 className="text-red-400 text-4xl mt-2">{stats.risk_documents}</h1>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">Watermark Detected</p>
-          <h1 className="text-cyan-400 text-4xl mt-2">{stats.watermark_detected}</h1>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">Tampered Docs</p>
-          <h1 className="text-amber-400 text-4xl mt-2">{stats.tampered_documents}</h1>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">Classified</p>
-          <h1 className="text-green-400 text-4xl mt-2">{stats.classified_documents}</h1>
-        </div>
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-          <p className="text-gray-400">Expired</p>
-          <h1 className="text-purple-400 text-4xl mt-2">{stats.expired_documents}</h1>
-        </div>
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
+      <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Dashboard</h1>
+      <p className="text-slate-500 mb-8">Overview of your document security posture.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+        {STAT_CARDS.map((card) => (
+          <div key={card.key} className="dli-panel p-5 flex items-center gap-4">
+            <div className="w-12 h-12 shrink-0 rounded-xl bg-slate-800/70 border border-slate-700/50 flex items-center justify-center text-2xl">
+              {card.icon}
+            </div>
+            <div className="min-w-0">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide truncate">{card.label}</p>
+              <p className={`text-3xl font-bold mt-1 ${card.valueClass}`}>{stats[card.key]}</p>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-        <h2 className="text-white text-xl font-bold mb-4">Recent Activity</h2>
+
+      <div className="dli-panel p-5 md:p-6">
+        <h2 className="text-white text-lg font-semibold mb-4">Recent Activity</h2>
         {auditLogs.length === 0 ? (
-          <p className="text-gray-500">No recent activity. Upload a document to get started.</p>
+          <p className="text-slate-500">No recent activity. Upload a document to get started.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-2 px-2">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-slate-800">
-                  <th className="text-left text-gray-400 py-3 px-4 text-sm">User</th>
-                  <th className="text-left text-gray-400 py-3 px-4 text-sm">Action</th>
-                  <th className="text-left text-gray-400 py-3 px-4 text-sm">Details</th>
-                  <th className="text-left text-gray-400 py-3 px-4 text-sm">Timestamp</th>
+                  <th className="text-left text-slate-500 text-xs font-semibold uppercase tracking-wide py-3 px-4">User</th>
+                  <th className="text-left text-slate-500 text-xs font-semibold uppercase tracking-wide py-3 px-4">Action</th>
+                  <th className="text-left text-slate-500 text-xs font-semibold uppercase tracking-wide py-3 px-4">Details</th>
+                  <th className="text-left text-slate-500 text-xs font-semibold uppercase tracking-wide py-3 px-4">Timestamp</th>
                 </tr>
               </thead>
               <tbody>
                 {auditLogs.map((log, i) => (
-                  <tr key={log.id ?? i} className="border-b border-slate-800/50">
-                    <td className="text-white py-3 px-4">{log.user}</td>
-                    <td className="text-gray-300 py-3 px-4">{log.action}</td>
-                    <td className="text-gray-300 py-3 px-4 text-sm">{log.details || log.document}</td>
-                    <td className="text-gray-500 py-3 px-4 text-sm">{log.created_at || log.timestamp}</td>
+                  <tr key={log.id ?? i} className="border-b border-slate-800/50 last:border-0 hover:bg-slate-800/30 transition-colors">
+                    <td className="text-white py-3 px-4 break-words">{log.user}</td>
+                    <td className="text-slate-300 py-3 px-4 break-words">{log.action}</td>
+                    <td className="text-slate-400 py-3 px-4 text-sm break-words">{log.details || log.document}</td>
+                    <td className="text-slate-500 py-3 px-4 text-sm whitespace-nowrap">{log.created_at || log.timestamp}</td>
                   </tr>
                 ))}
               </tbody>

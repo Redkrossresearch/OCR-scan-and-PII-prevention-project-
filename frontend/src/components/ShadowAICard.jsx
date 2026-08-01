@@ -56,9 +56,9 @@ function ShadowAICard() {
 
           <ProgressBar label="Risk Score" value={riskScore} />
 
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
-            <p className="text-blue-400 text-xs mb-1">Recommendation</p>
-            <p className="text-gray-200 text-sm">{recommendation}</p>
+          <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4">
+            <p className="text-indigo-300 text-xs mb-1">Recommendation</p>
+            <p className="text-gray-200 text-sm break-words">{recommendation}</p>
           </div>
 
           <div
@@ -66,7 +66,7 @@ function ShadowAICard() {
               unsafePrompt ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'
             }`}
           >
-            <p className={`text-sm ${unsafePrompt ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
+            <p className={`text-sm break-words ${unsafePrompt ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
           </div>
         </div>
       )}
