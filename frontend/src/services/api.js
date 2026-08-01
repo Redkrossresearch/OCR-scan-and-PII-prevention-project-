@@ -65,6 +65,24 @@ export const auth = {
   },
 
   isAuthenticated: () => !!getToken(),
+
+  forgotPassword: (email) =>
+    apiRequest('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  verifyOtp: (email, otp) =>
+    apiRequest('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    }),
+
+  resetPassword: (email, otp, new_password) =>
+    apiRequest('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, new_password }),
+    }),
 };
 
 export const upload = {

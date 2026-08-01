@@ -15,6 +15,7 @@ import Audit from "./pages/Audit/Audit";
 import Reports from "./pages/Reports/Reports";
 import DLPControls from "./pages/DLPControls/DLPControls";
 import AIBehavior from "./pages/AIBehavior/AIBehavior";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -40,6 +41,9 @@ function AppLayout() {
         <div style={{ padding: "20px" }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            
+          
+            <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/ocr" element={<OCR />} />
             <Route path="/detection" element={<Detection />} />
@@ -62,6 +66,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>

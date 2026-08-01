@@ -61,6 +61,13 @@ function Login() {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
               className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500" placeholder="Enter password" />
           </div>
+          {!isRegister && (
+          <div className="text-right -mt-2">
+            <a href="/forgot-password" className="text-blue-400 text-sm hover:text-blue-300">
+              Forgot Password?
+            </a>
+          </div>
+            )}
           <button type="submit" disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50">
             {loading ? 'Please wait...' : isRegister ? 'Register' : 'Sign In'}
