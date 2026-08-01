@@ -3,6 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.user import User
+from datetime import datetime, timedelta, UTC
+from app.schemas.user import (
+    ForgotPasswordRequest,
+    VerifyOtpRequest,
+    ResetPasswordRequest,
+)
+from app.services.otp_service import generate_otp, send_otp_email
 
 from app.schemas.user import (
     UserRegister,
@@ -148,3 +155,81 @@ def login(
         "access_token": access_token,
         "token_type": "bearer"
     }
+# -------------------------
+# Forgot Password - Send OTP
+# -------------------------
+@router.post("/forgot-password")
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(User).filter(User.email == data.email).first()
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Email not registered")
+
+    otp = generate_otp()
+    db_user.otp_code = otp
+    db_user.otp_expiry = datetime.now(UTC) + timedelta(minutes=10)
+    db.commit()
+
+    send_otp_email(db_user.email, otp)
+
+    AuditService.log(
+        db,
+        db_user.email,
+        "OTP_SENT",
+        "Password reset OTP sent",
+    )
+
+    return {"message": "OTP sent to your email"}
+
+
+# -------------------------
+# Verify OTP
+# -------------------------
+@router.post("/verify-otp")
+def verify_otp(
+    data: VerifyOtpRequest,
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(User).filter(User.email == data.email).first()
+
+    if not db_user or db_user.otp_code != data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if db_user.otp_expiry.replace(tzinfo=UTC) < datetime.now(UTC):
+        raise HTTPException(status_code=400, detail="OTP expired")
+
+    return {"message": "OTP verified"}
+
+
+# -------------------------
+# Reset Password
+# -------------------------
+@router.post("/reset-password")
+def reset_password(
+    data: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(User).filter(User.email == data.email).first()
+
+    if not db_user or db_user.otp_code != data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if db_user.otp_expiry.replace(tzinfo=UTC) < datetime.now(UTC):
+        raise HTTPException(status_code=400, detail="OTP expired")
+
+    db_user.password = hash_password(data.new_password)
+    db_user.otp_code = None
+    db_user.otp_expiry = None
+    db.commit()
+
+    AuditService.log(
+        db,
+        db_user.email,
+        "PASSWORD_RESET",
+        "Password reset successfully",
+    )
+
+    return {"message": "Password reset successful"}
