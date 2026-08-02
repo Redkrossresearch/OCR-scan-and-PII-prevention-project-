@@ -179,7 +179,10 @@ export const reports = {
   downloadPDF: () => `${API_BASE}/reports/pdf`,
   generatePDF: async (report) => {
     const token = getToken();
-    const headers = { Authorization: `Bearer ${token}` };
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
     const response = await fetch(`${API_BASE}/reports/pdf`, {
       method: 'POST',
       headers,
