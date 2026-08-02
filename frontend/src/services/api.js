@@ -86,9 +86,12 @@ export const auth = {
 };
 
 export const upload = {
-  file: (file) => {
+  file: (file, expiryDays) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (expiryDays) {
+      formData.append('expiry_days', expiryDays);
+    }
     return apiRequest('/upload/', { method: 'POST', body: formData });
   },
 };
@@ -178,32 +181,16 @@ export const reports = {
   downloadCSV: () => `${API_BASE}/reports/csv`,
   downloadPDF: () => `${API_BASE}/reports/pdf`,
   generatePDF: async (report) => {
-    const token = getToken();
-    const headers = { Authorization: `Bearer ${token}` };
-    const response = await fetch(`${API_BASE}/reports/pdf`, {
+    return apiRequest('/reports/pdf', {
       method: 'POST',
-      headers,
       body: JSON.stringify(report),
     });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'PDF generation failed' }));
-      throw new Error(error.detail || 'PDF generation failed');
-    }
-    return response;
   },
   generateCSV: async (report) => {
-    const token = getToken();
-    const headers = { Authorization: `Bearer ${token}` };
-    const response = await fetch(`${API_BASE}/reports/csv`, {
+    return apiRequest('/reports/csv', {
       method: 'POST',
-      headers,
       body: JSON.stringify(report),
     });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'CSV generation failed' }));
-      throw new Error(error.detail || 'CSV generation failed');
-    }
-    return response;
   },
 };
 

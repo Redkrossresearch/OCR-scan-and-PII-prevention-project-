@@ -17,4 +17,4 @@ class Document(Base):
     risk_level = Column(String, nullable=True)
     watermark_detected = Column(Boolean, default=False)
     tampered = Column(Boolean, default=False)
-    is_expired = Column(Boolean, default=False)
+    expiry_date = Column(DateTime, nullable=True)

@@ -103,7 +103,7 @@ async def watermark_check(file: UploadFile = File(...)):
     try:
         import cv2
         import pytesseract
-        pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        pytesseract.pytesseract.tesseract_cmd = "tesseract"
         image = cv2.imread(file_path)
         if image is None:
             return {"success": False, "message": f"Cannot read image: {file_path}"}
@@ -204,6 +204,9 @@ def get_dashboard(db: Session = Depends(get_db)):
             "watermark_detected": db.query(Document).filter(Document.watermark_detected.is_(True)).count(),
             "tampered_documents": db.query(Document).filter(Document.tampered.is_(True)).count(),
             "risk_documents": db.query(Document).filter(Document.risk_level.in_(["HIGH", "CRITICAL"])).count(),
-            "expired_documents": db.query(Document).filter(Document.is_expired.is_(True)).count(),
+            "expired_documents": db.query(Document).filter(
+                Document.expiry_date.isnot(None),
+                Document.expiry_date < datetime.utcnow()
+            ).count(),
         },
     }

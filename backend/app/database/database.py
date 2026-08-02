@@ -1,11 +1,24 @@
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parents[1]
+DOTENV_PATH = BASE_DIR / '.env'
+if not DOTENV_PATH.exists():
+    DOTENV_PATH = Path(find_dotenv(usecwd=True))
+    if not DOTENV_PATH.exists():
+        DOTENV_PATH = None
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+if DOTENV_PATH:
+    load_dotenv(DOTENV_PATH)
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+    raise RuntimeError(
+        'DATABASE_URL is not set. Please create backend/.env or export DATABASE_URL to point to your Neon/PostgreSQL database.'
+    )
 
 engine = create_engine(
     DATABASE_URL,

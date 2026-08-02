@@ -7,6 +7,7 @@ function UploadPage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [expiryDays, setExpiryDays] = useState('');
   const fileRef = useRef();
 
   const handleDrop = (e) => {
@@ -33,7 +34,7 @@ function UploadPage() {
     setError('');
     setResult(null);
     try {
-      const uploadResult = await upload.file(file);
+      const uploadResult = await upload.file(file, expiryDays);
       setResult({ message: uploadResult.message, filename: uploadResult.filename });
     } catch (err) {
       setError(err.message || 'Upload failed');
@@ -75,6 +76,21 @@ function UploadPage() {
             </div>
           )}
         </div>
+        {file && (
+          <div className="mt-6">
+            <label className="text-gray-400 text-sm mb-2 block">
+              Expires in (days) — optional
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={expiryDays}
+              onChange={(e) => setExpiryDays(e.target.value)}
+              placeholder="e.g. 30"
+              className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+        )}
         {file && (
           <button onClick={handleUpload} disabled={uploading}
             className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50">
