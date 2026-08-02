@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     UploadFile,
     File,
+    Form,
     HTTPException,
     Depends
 )
@@ -12,6 +13,7 @@ from app.services.file_service import save_uploaded_file
 from app.core.dependencies import get_current_user
 from app.database.database import get_db
 from app.services.audit_service import AuditService
+from datetime import datetime, timedelta
 from app.models.document import Document
 
 router = APIRouter(
@@ -33,6 +35,7 @@ ALLOWED_TYPES = [
 )
 def upload_document(
     file: UploadFile = File(...),
+    expiry_days: int = Form(None),
     current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -58,11 +61,16 @@ def upload_document(
     filename = save_uploaded_file(file)
 
     # Create document record in database
+    expiry_date = None
+    if expiry_days:
+        expiry_date = datetime.utcnow() + timedelta(days=expiry_days)
+
     document = Document(
         filename=filename,
-        filepath=f"uploads/{filename}",
+        filepath="uploads/%s" % filename,
         file_type=extension,
-        uploaded_by=current_user
+        uploaded_by=current_user,
+        expiry_date=expiry_date,
     )
 
     db.add(document)
