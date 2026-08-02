@@ -40,7 +40,13 @@ def upload_document(
     db: Session = Depends(get_db)
 ):
 
-    extension = file.filename.split(".")[-1].lower()
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing file name"
+        )
+
+    extension = file.filename.rsplit(".", 1)[-1].lower()
 
     # Check file type
     if extension not in ALLOWED_TYPES:
