@@ -361,10 +361,10 @@ def redact_document(
                 ocr_data,
             )
 
-            return {
-                "message": "Document redacted successfully",
-                "redacted_file": f"/uploads/redacted/{Path(redacted_path).name}",
-            }
+        return {
+            "message": "Document redacted successfully",
+            "redacted_file": f"/uploads/redacted/{Path(redacted_path).name}",
+        }
 
     except Exception as e:
 
