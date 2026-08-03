@@ -10,6 +10,7 @@ import {
   FaFileAlt,
   FaUserShield,
   FaBrain,
+  FaVideo,
 } from "react-icons/fa";
 
 const NAV_GROUPS = [
@@ -40,6 +41,7 @@ const NAV_GROUPS = [
     items: [
       { to: "/dlp-controls", icon: FaUserShield, text: "DLP Controls" },
       { to: "/ai-behavior", icon: FaBrain, text: "AI & Behavior" },
+      { to: "/forensic-sessions", icon: FaVideo, text: "Forensic" },
     ],
   },
 ];

@@ -15,6 +15,7 @@ import Audit from "./pages/Audit/Audit";
 import Reports from "./pages/Reports/Reports";
 import DLPControls from "./pages/DLPControls/DLPControls";
 import AIBehavior from "./pages/AIBehavior/AIBehavior";
+import Forensic from "./pages/Forensic/Forensic";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 function ProtectedRoute({ children }) {
@@ -49,6 +50,7 @@ function AppLayout() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/dlp-controls" element={<DLPControls />} />
             <Route path="/ai-behavior" element={<AIBehavior />} />
+            <Route path="/forensic-sessions" element={<Forensic />} />
           </Routes>
         </main>
       </div>

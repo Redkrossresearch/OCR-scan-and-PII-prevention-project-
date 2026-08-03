@@ -175,6 +175,14 @@ export const forensic = {
     formData.append('document', doc);
     return apiRequest('/forensic/record', { method: 'POST', body: formData, headers: {} });
   },
+  uploadRecording: (blob, user, document) => {
+    const formData = new FormData();
+    formData.append('file', blob, `session-${Date.now()}.webm`);
+    formData.append('user', user);
+    formData.append('document', document);
+    return apiRequest('/forensic/record-session', { method: 'POST', body: formData });
+  },
+  recordings: () => apiRequest('/forensic/recordings'),
 };
 
 export const reports = {

@@ -347,6 +347,9 @@ export async function analyzeDocument(file, user, onProgress) {
 }
 
 function classificationFor(piiData, piiResult) {
+  if (typeof piiData?.classification === 'string' && piiData.classification) {
+    return piiData.classification;
+  }
   if (piiData?.classification?.classification) return piiData.classification.classification;
   return piiResult.ok ? 'Unclassified' : 'Error';
 }
