@@ -671,9 +671,13 @@ class PDFReportBuilder:
                     textColor=INK,
                 ),
             )
-            t = Table([[pt]], colWidths=[CONTENT_W])
-            t.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.5, SLATE_300), ("BACKGROUND", (0, 0), (-1, -1), SLATE_100)]))
-            flow.append(t)
+            # NOTE: previously this Preformatted block was wrapped in a 1x1 Table
+            # (Table([[pt]])). A Table row must fit entirely on one page - it
+            # cannot split - so long OCR text (many short lines) caused
+            # "Flowable ... too large on page X in frame 'normal'" errors.
+            # Appending the Preformatted flowable directly lets ReportLab
+            # split it across pages naturally (Preformatted.split() handles this).
+            flow.append(pt)
         else:
             flow.append(_note("No data available - no text was extracted from the document."))
         return flow

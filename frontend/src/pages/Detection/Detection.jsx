@@ -197,7 +197,9 @@ function DetectionPage() {
                 <p className="text-gray-400 text-sm">Classification</p>
 
                 <p className="text-3xl font-bold mt-1 text-indigo-400">
-                  {result.classification?.classification || 'N/A'}
+                  {typeof result.classification === 'string'
+                    ? result.classification
+                    : result.classification?.classification || 'N/A'}
                 </p>
               </div>
 
@@ -437,5 +439,4 @@ function DetectionPage() {
     </div>
   );
 }
-
 export default DetectionPage;

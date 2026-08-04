@@ -10,9 +10,9 @@ class PIIDetector:
 
         "aadhaar_numbers": r"\b\d{4}\s?\d{4}\s?\d{4}\b",
 
-        "pan_numbers": r"\b[A-Z]{5}[0-9]{4}[A-Z]\b",
+        "pan_numbers": r"\b[A-Za-z]{5}[0-9]{4}[A-Za-z]\b",
 
-        "passport_numbers": r"\b[A-Z][0-9]{7}\b",
+        "passport_numbers": r"\b[A-Za-z][0-9]{7}\b",
 
         "credit_cards": r"\b(?:\d{4}[- ]?){3}\d{4}\b",
 
@@ -25,6 +25,6 @@ class PIIDetector:
         results = {}
 
         for key, pattern in PIIDetector.PATTERNS.items():
-            results[key] = re.findall(pattern, text)
+            results[key] = re.findall(pattern, text, flags=re.IGNORECASE)
 
         return results

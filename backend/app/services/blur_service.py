@@ -1,4 +1,6 @@
 import os
+from io import BytesIO
+
 import fitz
 from PIL import Image, ImageFilter
 
@@ -58,13 +60,27 @@ class BlurService:
             sensitive_values.update(values)
 
         for page in document:
-            words = page.get_text("words")
-            for word in words:
-                text = str(word[4]).strip()
-                if text in sensitive_values:
-                    rect = fitz.Rect(word[0], word[1], word[2], word[3])
-                    page.add_redact_annot(rect, fill=(0.3, 0.3, 0.3))
-            page.apply_redactions()
+
+            for value in sensitive_values:
+
+                if not value:
+                    continue
+
+                matches = page.search_for(value)
+
+                for rect in matches:
+
+                    pix = page.get_pixmap(clip=rect, dpi=300)
+                    img_bytes = pix.tobytes("png")
+
+                    pil_image = Image.open(BytesIO(img_bytes))
+
+                    blurred = pil_image.filter(ImageFilter.GaussianBlur(radius=8))
+
+                    blurred_bytes = BytesIO()
+                    blurred.save(blurred_bytes, format="PNG")
+
+                    page.insert_image(rect, stream=blurred_bytes.getvalue())
 
         document.save(output_path)
         document.close()

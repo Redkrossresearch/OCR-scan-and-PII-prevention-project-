@@ -72,21 +72,14 @@ class RedactionService:
 
         for page in document:
 
-            words = page.get_text("words")
+            for value in sensitive_values:
 
-            for word in words:
+                if not value:
+                    continue
 
-                text = str(word[4]).strip()
+                matches = page.search_for(value)
 
-                if text in sensitive_values:
-
-                    rect = fitz.Rect(
-                        word[0],
-                        word[1],
-                        word[2],
-                        word[3],
-                    )
-
+                for rect in matches:
                     page.add_redact_annot(
                         rect,
                         fill=(0, 0, 0),

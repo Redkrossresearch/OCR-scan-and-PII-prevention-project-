@@ -2,6 +2,10 @@ import os
 import uuid
 from datetime import datetime
 
+from sqlalchemy.orm import Session
+
+from app.models.session_recording import SessionRecording
+
 RECORDINGS_DIR = os.path.join("uploads", "recordings")
 
 
@@ -9,9 +13,8 @@ class SessionRecordingService:
 
     def __init__(self):
         os.makedirs(RECORDINGS_DIR, exist_ok=True)
-        self.recordings = []
 
-    def save_recording(self, user: str, document: str, file):
+    def save_recording(self, db: Session, user: str, document: str, file):
 
         filename = f"{uuid.uuid4().hex}.webm"
         filepath = os.path.join(RECORDINGS_DIR, filename)
@@ -19,25 +22,46 @@ class SessionRecordingService:
         with open(filepath, "wb") as f:
             f.write(file.file.read())
 
-        record = {
-            "user": user,
-            "document": document,
-            "filename": filename,
-            "url": f"/uploads/recordings/{filename}",
-            "recorded_at": str(datetime.now()),
-        }
-
-        self.recordings.append(record)
+        entry = SessionRecording(
+            user=user,
+            document=document,
+            filename=filename,
+            url=f"/uploads/recordings/{filename}",
+        )
+        db.add(entry)
+        db.commit()
+        db.refresh(entry)
 
         return {
             "success": True,
             "message": "Session recording saved",
-            "record": record,
+            "record": {
+                "user": entry.user,
+                "document": entry.document,
+                "filename": entry.filename,
+                "url": entry.url,
+                "recorded_at": str(entry.created_at),
+            },
         }
 
-    def get_recordings(self):
+    def get_recordings(self, db: Session):
+
+        records = (
+            db.query(SessionRecording)
+            .order_by(SessionRecording.created_at.desc())
+            .all()
+        )
 
         return {
-            "total_recordings": len(self.recordings),
-            "recordings": list(reversed(self.recordings)),
+            "total_recordings": len(records),
+            "recordings": [
+                {
+                    "user": r.user,
+                    "document": r.document,
+                    "filename": r.filename,
+                    "url": r.url,
+                    "recorded_at": str(r.created_at),
+                }
+                for r in records
+            ],
         }

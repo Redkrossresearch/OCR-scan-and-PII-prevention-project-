@@ -27,7 +27,7 @@ function Dashboard() {
           setStats(dashData.value.dashboard);
         }
         if (logData.status === 'fulfilled' && logData.value.logs) {
-          setAuditLogs(logData.value.logs.slice(-5).reverse());
+          setAuditLogs(logData.value.logs.slice(0, 5));
         }
       })
       .catch((err) => {

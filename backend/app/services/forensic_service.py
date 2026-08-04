@@ -1,42 +1,43 @@
-from datetime import datetime
+from sqlalchemy.orm import Session
+
+from app.models.forensic_log import ForensicLog
 
 
 class ForensicService:
 
-    def __init__(self):
-        self.forensic_logs = []
-
-
-    def create_forensic_record(
-        self,
-        user: str,
-        action: str,
-        document: str
-    ):
-
-        record = {
-            "user": user,
-            "action": action,
-            "document": document,
-            "timestamp": str(datetime.now()),
-            "status": "Recorded"
-        }
-
-
-        self.forensic_logs.append(record)
-
+    @staticmethod
+    def create_forensic_record(db: Session, user: str, action: str, document: str):
+        entry = ForensicLog(user=user, action=action, document=document)
+        db.add(entry)
+        db.commit()
+        db.refresh(entry)
 
         return {
             "success": True,
             "message": "Forensic record created",
-            "record": record
+            "record": {
+                "user": entry.user,
+                "action": entry.action,
+                "document": entry.document,
+                "timestamp": str(entry.created_at),
+                "status": "Recorded",
+            },
         }
 
-
-
-    def get_forensic_logs(self):
+    @staticmethod
+    def get_forensic_logs(db: Session):
+        logs = db.query(ForensicLog).order_by(ForensicLog.created_at.desc()).all()
 
         return {
-            "total_records": len(self.forensic_logs),
-            "records": self.forensic_logs
+            "total_records": len(logs),
+            "records": [
+                {
+                    "user": l.user,
+                    "action": l.action,
+                    "document": l.document,
+                    "timestamp": str(l.created_at),
+                    "status": "Recorded",
+                }
+                for l in logs
+            ],
         }

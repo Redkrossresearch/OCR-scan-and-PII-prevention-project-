@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Form, File, UploadFile
+from fastapi import APIRouter, Form, File, UploadFile, Depends
+from sqlalchemy.orm import Session
 
 from app.services.forensic_service import ForensicService
 from app.services.session_recording_service import SessionRecordingService
+from app.database.database import get_db
 
 
 router = APIRouter(
@@ -9,32 +11,22 @@ router = APIRouter(
     tags=["Forensic Investigation"]
 )
 
-
-service = ForensicService()
 recording_service = SessionRecordingService()
-
 
 
 @router.post("/record")
 def create_record(
     user: str = Form(...),
     action: str = Form(...),
-    document: str = Form(...)
+    document: str = Form(...),
+    db: Session = Depends(get_db),
 ):
-
-    return service.create_forensic_record(
-        user,
-        action,
-        document
-    )
-
+    return ForensicService.create_forensic_record(db, user, action, document)
 
 
 @router.get("/logs")
-def get_forensic_logs():
-
-    return service.get_forensic_logs()
-
+def get_forensic_logs(db: Session = Depends(get_db)):
+    return ForensicService.get_forensic_logs(db)
 
 
 @router.post("/record-session")
@@ -42,17 +34,13 @@ def record_session(
     user: str = Form(...),
     document: str = Form("Live Session"),
     file: UploadFile = File(...),
+    db: Session = Depends(get_db),
 ):
-
-    result = recording_service.save_recording(user, document, file)
-
-    service.create_forensic_record(user, "SESSION_RECORDED", document)
-
+    result = recording_service.save_recording(db, user, document, file)
+    ForensicService.create_forensic_record(db, user, "SESSION_RECORDED", document)
     return result
 
 
-
 @router.get("/recordings")
-def list_recordings():
-
-    return recording_service.get_recordings()
+def list_recordings(db: Session = Depends(get_db)):
+    return recording_service.get_recordings(db)

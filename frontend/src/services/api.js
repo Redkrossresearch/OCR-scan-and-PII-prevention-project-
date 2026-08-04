@@ -144,16 +144,12 @@ export const documentFeatures = {
     formData.append('file', file);
     return apiRequest('/document/classify', { method: 'POST', body: formData });
   },
-  accessCheck: (userRole, riskLevel) => {
-    const formData = new URLSearchParams();
-    formData.append('user_role', userRole);
-    formData.append('risk_level', riskLevel);
-    return apiRequest('/document/access/check', {
+  accessCheck: (userRole, riskLevel) =>
+    apiRequest('/document/access/check', {
       method: 'POST',
-      body: formData,
-      headers: {},
-    });
-  },
+      body: formDataFrom({ user_role: userRole, risk_level: riskLevel }),
+    }),
+
   ownershipHistory: () => apiRequest('/document/ownership/history'),
   dashboard: () => apiRequest('/document/dashboard'),
   auditLogs: () => apiRequest('/document/audit/logs'),
