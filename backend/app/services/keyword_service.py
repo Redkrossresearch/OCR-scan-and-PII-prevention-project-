@@ -20,7 +20,7 @@ class KeywordService:
             return [
                 line.strip().lower()
                 for line in file
-                if line.strip()
+                if line.strip() and not line.strip().startswith("#")
             ]
 
     @staticmethod

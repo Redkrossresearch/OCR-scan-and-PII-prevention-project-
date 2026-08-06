@@ -1,0 +1,91 @@
+# Financial Reports
+financial report
+quarterly report
+annual report
+revenue statement
+profit and loss
+balance sheet
+income statement
+financial statement
+audit report
+earnings report
+
+# Bank Details
+bank details
+account number
+account holder
+ifsc
+swift code
+routing number
+bank statement
+wire transfer
+fund transfer
+
+# Strategic Plans
+strategic plan
+business strategy
+roadmap
+growth strategy
+market strategy
+expansion plan
+five year plan
+
+# Trade Secrets
+trade secret
+proprietary information
+proprietary technology
+confidential formula
+internal process
+know-how
+
+# Patents
+patent
+patent pending
+patent application
+invention disclosure
+intellectual property
+
+# Merger & Acquisition
+merger
+acquisition
+due diligence
+letter of intent
+term sheet
+m&a
+non-disclosure agreement
+nda
+
+# Payroll Information
+payroll
+salary
+compensation
+bonus structure
+employee salary
+ctc
+pay slip
+payslip
+
+# Customer Database
+customer database
+customer list
+client list
+customer data
+crm export
+subscriber list
+
+# Vendor Contracts
+vendor contract
+supplier agreement
+purchase order
+service agreement
+contract terms
+vendor agreement
+
+# Confidential Documents
+confidential
+strictly confidential
+internal use only
+do not distribute
+restricted
+proprietary and confidential
+classified

@@ -135,8 +135,6 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 def extract_pdf_data(pdf_path: str):
     """
     Extract OCR bounding boxes from scanned PDF pages.
-
-    Returns a list of OCR items.
     """
 
     if not os.path.exists(pdf_path):
@@ -148,7 +146,7 @@ def extract_pdf_data(pdf_path: str):
 
     try:
 
-        for page in document:
+        for page_number, page in enumerate(document):
 
             pix = page.get_pixmap(dpi=300)
 
@@ -164,6 +162,9 @@ def extract_pdf_data(pdf_path: str):
                 pix.save(temp_path)
 
                 page_data = extract_image_data(temp_path)
+
+                for item in page_data:
+                    item["page"] = page_number
 
                 all_data.extend(page_data)
 

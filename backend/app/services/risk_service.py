@@ -8,6 +8,9 @@ class RiskService:
         "aadhaar_numbers": 5,
         "credit_cards": 6,
         "ssn_numbers": 6,
+        "ifsc_codes": 3,
+        "gstin_numbers": 4,
+        "bank_account_numbers": 5,
         "keywords": 1,
     }
 

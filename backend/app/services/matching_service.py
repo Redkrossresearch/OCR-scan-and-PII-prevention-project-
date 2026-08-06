@@ -1,25 +1,23 @@
+import re
 from difflib import SequenceMatcher
 
 
 class MatchingService:
 
     @staticmethod
+    def normalize(s: str) -> str:
+        return re.sub(r"[\s\-]", "", s).strip().lower()
+
+    @staticmethod
     def is_match(a: str, b: str) -> bool:
-        """
-        Returns True if OCR text closely matches
-        detected sensitive data.
-        """
+        a_l = a.strip().lower()
+        b_l = b.strip().lower()
 
-        a = a.strip().lower()
-        b = b.strip().lower()
-
-        if a == b:
+        if a_l == b_l:
             return True
 
-        similarity = SequenceMatcher(
-            None,
-            a,
-            b,
-        ).ratio()
+        if MatchingService.normalize(a) == MatchingService.normalize(b):
+            return True
 
+        similarity = SequenceMatcher(None, a_l, b_l).ratio()
         return similarity >= 0.90

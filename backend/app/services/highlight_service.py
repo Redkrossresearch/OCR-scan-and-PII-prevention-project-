@@ -18,6 +18,9 @@ class HighlightService:
             "passport_numbers": "PASSPORT",
             "credit_cards": "CREDIT_CARD",
             "ssn_numbers": "SSN",
+            "ifsc_codes": "IFSC",
+            "gstin_numbers": "GSTIN",
+            "bank_account_numbers": "BANK_ACCOUNT",
         }
 
         for key, values in detected.items():
@@ -26,9 +29,8 @@ class HighlightService:
 
                 highlights.append(
                     {
-                        "type": mapping[key],
+                        "type": mapping.get(key, key.upper()),
                         "value": value
                     }
                 )
-
         return highlights

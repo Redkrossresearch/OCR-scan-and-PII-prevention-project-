@@ -22,6 +22,12 @@ class PIIResponse(BaseModel):
 
     ssn_numbers: list[str]
 
+    ifsc_codes: list[str]
+
+    gstin_numbers: list[str]
+
+    bank_account_numbers: list[str]
+
     highlights: list[HighlightItem]
 
     highlighted_file: str

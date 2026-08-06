@@ -351,6 +351,7 @@ def redact_document(
             redacted_path = RedactionService.redact_pdf(
                 temp_path,
                 result,
+                ocr_data,
             )
 
         else:
