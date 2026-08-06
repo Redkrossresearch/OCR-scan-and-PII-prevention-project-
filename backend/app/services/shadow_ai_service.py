@@ -33,7 +33,8 @@ class ShadowAIService:
 
             return {
                 "shadow_ai_detected": True,
-                "message": "Unauthorized AI tool usage detected"
+                "message": "Unauthorized AI tool usage detected",
+                "input": {"application_name": application_name}
             }
 
 
@@ -47,7 +48,8 @@ class ShadowAIService:
 
         return {
             "shadow_ai_detected": False,
-            "message": "No unauthorized AI usage detected"
+            "message": "No unauthorized AI usage detected",
+            "input": {"application_name": application_name}
         }
 
 

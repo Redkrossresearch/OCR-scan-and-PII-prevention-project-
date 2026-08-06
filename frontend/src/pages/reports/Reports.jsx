@@ -67,7 +67,7 @@ function ReportsPage() {
       </p>
 
       {report && (
-        <div className="dli-panel p-5 border-indigo-500/20 mb-6 max-w-4xl">
+        <div className="dli-panel p-5 border-indigo-500/20 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="min-w-0">
               <p className="text-white font-semibold break-words">{report.document.filename}</p>
@@ -83,7 +83,7 @@ function ReportsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="dli-panel p-6 border-green-500/20 hover:scale-[1.02] transition-transform duration-300">
           <h2 className="text-white text-xl font-bold mb-2">CSV Report</h2>
           <p className="text-gray-400 text-sm mb-4">

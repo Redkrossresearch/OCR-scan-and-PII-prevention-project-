@@ -19,7 +19,7 @@ class ForensicService:
                 "user": entry.user,
                 "action": entry.action,
                 "document": entry.document,
-                "timestamp": str(entry.created_at),
+                "timestamp": entry.created_at.isoformat() + "Z",
                 "status": "Recorded",
             },
         }

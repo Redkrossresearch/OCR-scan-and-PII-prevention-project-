@@ -53,7 +53,7 @@ function UploadPage() {
     <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
       <h1 className="font-display text-white text-2xl md:text-3xl font-semibold mb-2">Upload Document</h1>
       <p className="text-gray-500 mb-8">Upload a supported document to begin the security pipeline.</p>
-      <div className="max-w-2xl">
+      <div>
         <div
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}

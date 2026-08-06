@@ -89,7 +89,7 @@ function OCRPage() {
       <p className="text-gray-400 mb-8">
         Upload a document once. It will be scanned through OCR, PII detection, risk analysis and all DLP modules automatically.
       </p>
-      <div className="max-w-4xl">
+      <div>
         <div className="dli-panel p-5 md:p-6 mb-6">
           <label className="block text-gray-400 text-sm mb-3">Select a file (PDF, PNG, JPG)</label>
           <div className="flex flex-wrap gap-3">

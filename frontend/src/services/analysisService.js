@@ -267,15 +267,20 @@ export async function analyzeDocument(file, user, onProgress) {
     documentFeatures.accessCheck('employee', riskLevel.toLowerCase())
   );
 
-  // 5. Policy Alerts
-  const policyAlertResult = await runModule(user, 'Creating policy alert', onProgress, () =>
-    policyAlerts.create({
-      user,
-      policy_name: `Sensitive Data Access — ${classificationFor(piiData, piiResult)}`,
-      severity: severityFor(riskLevel),
-      description: `Document "${file.name}" analyzed. ${piiSummary(piiData)}. Risk level: ${riskLevel}.`,
-    })
-  );
+  // 5. Policy Alerts — only raise an alert when the scan actually found something risky
+  const hasPiiRisk = PII_KEYS.some((key) => Array.isArray(piiData?.[key]) && piiData[key].length > 0);
+  const shouldRaiseAlert = riskLevel !== 'Low' || hasPiiRisk;
+
+  const policyAlertResult = shouldRaiseAlert
+    ? await runModule(user, 'Creating policy alert', onProgress, () =>
+        policyAlerts.create({
+          user,
+          policy_name: `Sensitive Data Access — ${classificationFor(piiData, piiResult)}`,
+          severity: severityFor(riskLevel),
+          description: `Document "${file.name}" analyzed. ${piiSummary(piiData)}. Risk level: ${riskLevel}.`,
+        })
+      )
+    : { ok: false, data: null, skipped: true, error: 'No sensitive data detected — no policy alert needed.' };
 
   // 6. Email DLP
   const emailDlpResult = await runModule(user, 'Scanning email DLP', onProgress, () =>

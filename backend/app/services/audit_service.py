@@ -31,11 +31,11 @@ class AuditService:
     def serialize(entry: AuditLog):
         created = entry.created_at
         if isinstance(created, datetime):
-            created = created.strftime("%Y-%m-%d %H:%M:%S")
+            created = created.isoformat() + "Z"
         return {
             "id": entry.id,
             "user": entry.user,
             "action": entry.action,
             "details": entry.details,
             "created_at": str(created),
-        }
+        };

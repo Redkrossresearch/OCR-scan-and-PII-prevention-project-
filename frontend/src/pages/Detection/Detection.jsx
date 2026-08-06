@@ -126,7 +126,7 @@ function DetectionPage() {
         PII Detection
       </h1>
 
-      <div className="max-w-4xl">
+      <div>
         <div className="dli-panel p-5 md:p-6 mb-6">
           <label className="block text-gray-400 text-sm mb-3">
             Select a document to scan for PII

@@ -89,7 +89,7 @@ function Dashboard() {
                     <td className="text-white py-3 px-4 break-words">{log.user}</td>
                     <td className="text-slate-300 py-3 px-4 break-words">{log.action}</td>
                     <td className="text-slate-400 py-3 px-4 text-sm break-words">{log.details || log.document}</td>
-                    <td className="text-slate-500 py-3 px-4 text-sm whitespace-nowrap">{log.created_at || log.timestamp}</td>
+                    <td className="text-slate-500 py-3 px-4 text-sm whitespace-nowrap">{new Date(log.created_at || log.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

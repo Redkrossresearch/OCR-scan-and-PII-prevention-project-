@@ -40,7 +40,7 @@ class SessionRecordingService:
                 "document": entry.document,
                 "filename": entry.filename,
                 "url": entry.url,
-                "recorded_at": str(entry.created_at),
+                "recorded_at": entry.created_at.isoformat() + "Z",
             },
         }
 
@@ -60,7 +60,7 @@ class SessionRecordingService:
                     "document": r.document,
                     "filename": r.filename,
                     "url": r.url,
-                    "recorded_at": str(r.created_at),
+                    "recorded_at": r.created_at.isoformat() + "Z",
                 }
                 for r in records
             ],

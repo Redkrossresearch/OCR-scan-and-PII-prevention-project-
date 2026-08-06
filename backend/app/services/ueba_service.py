@@ -34,7 +34,8 @@ class UEBAService:
         return {
             "user": user,
             "risk_level": risk_level,
-            "message": f"User behavior analyzed with {risk_level} risk"
+            "message": f"User behavior analyzed with {risk_level} risk",
+            "input": {"action": action, "access_count": access_count}
         }
 
 
