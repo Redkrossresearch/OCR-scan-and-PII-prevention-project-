@@ -21,7 +21,11 @@ class PrintControlService:
 
             return {
                 "allowed": False,
-                "message": "Printing blocked for sensitive document"
+                "message": "Printing blocked for sensitive document",
+                "input": {
+                    "user_role": user_role,
+                    "document_type": document_type
+                }
             }
 
         self.print_logs.append({
@@ -32,7 +36,11 @@ class PrintControlService:
 
         return {
             "allowed": True,
-            "message": "Printing allowed"
+            "message": "Printing allowed",
+            "input": {
+                "user_role": user_role,
+                "document_type": document_type
+            }
         }
 
 
