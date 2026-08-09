@@ -8,7 +8,9 @@ class PIIDetector:
 
         "phone_numbers": r"\b(?:\+91[- ]?)?[6-9]\d{9}\b",
 
-        "aadhaar_numbers": r"\b\d{4}\s?\d{4}\s?\d{4}\b",
+        # Requires the conventional spaced grouping (1234 5678 9123) so a bare
+        # 12-digit run (e.g. a bank account number) isn't also claimed as an Aadhaar.
+        "aadhaar_numbers": r"\b\d{4}[ ]\d{4}[ ]\d{4}\b",
 
         "pan_numbers": r"\b[A-Za-z]{5}[0-9]{4}[A-Za-z]\b",
 
@@ -25,12 +27,50 @@ class PIIDetector:
         "bank_account_numbers": r"\b\d{9,18}\b",
     }
 
+    # Order in which patterns "claim" a span of text, most structured/specific
+    # first. A later, looser pattern (e.g. bank_account_numbers) is skipped if
+    # it would overlap a span already claimed by an earlier, more specific
+    # pattern — this stops one real value being tagged under multiple
+    # different PII types (e.g. a phone number also showing up as a bank
+    # account number, or credit card digits being read as an Aadhaar number).
+    PRIORITY = [
+        "credit_cards",
+        "gstin_numbers",
+        "ifsc_codes",
+        "pan_numbers",
+        "passport_numbers",
+        "emails",
+        "ssn_numbers",
+        "aadhaar_numbers",
+        "phone_numbers",
+        "bank_account_numbers",
+    ]
+
     @staticmethod
     def detect(text: str):
 
-        results = {}
+        results = {key: [] for key in PIIDetector.PATTERNS}
+        claimed_spans = []
 
-        for key, pattern in PIIDetector.PATTERNS.items():
-            results[key] = re.findall(pattern, text, flags=re.IGNORECASE)
+        def overlaps_claimed(span):
+            start, end = span
+            for claimed_start, claimed_end in claimed_spans:
+                if start < claimed_end and end > claimed_start:
+                    return True
+            return False
+
+        for key in PIIDetector.PRIORITY:
+
+            pattern = PIIDetector.PATTERNS[key]
+
+            for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+
+                span = match.span()
+
+                if overlaps_claimed(span):
+                    continue
+
+                results[key].append(match.group())
+                claimed_spans.append(span)
 
         return results

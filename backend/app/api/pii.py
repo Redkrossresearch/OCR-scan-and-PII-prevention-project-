@@ -122,6 +122,7 @@ def detect_pii(
             )
 
         keywords = KeywordService.detect(extracted_text)
+        keyword_categories = KeywordService.detect_categories(extracted_text)
 
         risk = RiskService.calculate(
             result,
@@ -273,6 +274,7 @@ def detect_pii(
             "highlights": highlights,
             "highlighted_file": f"/uploads/highlighted/{Path(highlighted_path).name}",
             "keywords": keywords,
+            "keyword_categories": keyword_categories,
             "risk_score": risk["risk_score"],
             "risk_level": risk["risk_level"],
             "risk_breakdown": risk["risk_breakdown"],
