@@ -19,6 +19,7 @@ from app.api.auth import router as auth_router
 from app.api.upload import router as upload_router
 from app.api.ocr import router as ocr_router
 from app.api.pii import router as pii_router
+from app.api.qr_barcode import router as qr_barcode_router
 from fastapi.staticfiles import StaticFiles
 
 Base.metadata.create_all(bind=engine)
@@ -51,7 +52,7 @@ app.include_router(forensic_router, prefix="/api")
 app.include_router(document_features_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
 app.include_router(audit_router, prefix="/api")
-
+app.include_router(qr_barcode_router, prefix="/api")
 app.mount(
     "/uploads",
     StaticFiles(directory="uploads"),
