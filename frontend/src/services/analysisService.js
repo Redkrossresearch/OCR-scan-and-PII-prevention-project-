@@ -7,8 +7,8 @@ import {
   emailDLP,
   clipboard,
   printControl,
+  encryption,
   usbControl,
-  fileTypeBlocking,
   shadowAI,
   ueba,
   audit,
@@ -22,6 +22,9 @@ const PII_KEYS = [
   'credit_cards',
   'ssn_numbers',
   'passport_numbers',
+  'ifsc_codes',
+  'gstin_numbers',
+  'bank_account_numbers',
 ];
 
 const AI_TOOLS = ['chatgpt', 'openai', 'copilot', 'bard', 'gemini', 'claude'];
@@ -66,6 +69,9 @@ function piiSummary(pii) {
   const parts = PII_KEYS.filter((key) => Array.isArray(pii[key]) && pii[key].length > 0).map(
     (key) => `${pii[key].length} ${key.replace(/_/g, ' ')}`
   );
+  if (Array.isArray(pii.keyword_categories) && pii.keyword_categories.length > 0) {
+    parts.push(`sensitive content categories: ${pii.keyword_categories.join(', ')}`);
+  }
   return parts.length ? parts.join(', ') : 'No sensitive data detected';
 }
 
@@ -79,7 +85,6 @@ const AUDIT_ACTIONS = {
   'Checking clipboard control': 'CLIPBOARD_CHECKED',
   'Checking print policy': 'PRINT_POLICY_CHECKED',
   'Checking USB policy': 'USB_POLICY_CHECKED',
-  'Validating file type': 'FILE_TYPE_CHECKED',
   'Detecting shadow AI usage': 'SHADOW_AI_DETECTED',
   'Analyzing user behavior': 'UEBA_ANALYZED',
 };
@@ -106,6 +111,12 @@ function buildCompliance(pii) {
   }
   if (has('ssn_numbers')) items.push({ name: 'GLBA', status: 'fail', detail: 'Social security numbers detected' });
   if (has('passport_numbers')) items.push({ name: 'GDPR', status: 'fail', detail: 'Identity document numbers detected' });
+  if (has('bank_account_numbers') || has('ifsc_codes')) {
+    items.push({ name: 'RBI Data Guidelines', status: 'fail', detail: 'Bank account / IFSC data detected' });
+  }
+  if (has('gstin_numbers')) {
+    items.push({ name: 'GST Act (India)', status: 'review', detail: 'GSTIN detected — verify handling policy' });
+  }
   if (has('emails') || has('phone_numbers')) {
     items.push({ name: 'GDPR', status: 'review', detail: 'Contact data detected — data minimisation recommended' });
   }
@@ -130,7 +141,6 @@ function buildRecommendations({
   clipboard,
   printControl,
   usbControl,
-  fileType,
   shadowAi,
   ueba,
 }) {
@@ -159,9 +169,6 @@ function buildRecommendations({
   if (usbControl?.ok && usbControl.data?.usb_allowed === false) {
     recs.push('USB transfer blocked for this document and user.');
   }
-  if (fileType?.ok && fileType.data?.allowed === false) {
-    recs.push('File type is blocked by policy. Convert the document to an approved format.');
-  }
   if (shadowAi?.ok && shadowAi.data?.shadow_ai_detected) {
     recs.push('Unauthorized AI tool usage detected — investigate and enforce the approved AI tools policy.');
   }
@@ -188,9 +195,9 @@ function buildReport(inputs) {
     clipboardResult,
     printResult,
     usbResult,
-    fileTypeResult,
     shadowAiResult,
     uebaResult,
+    encryptionResult,
   } = inputs;
 
   const piiData = piiResult.ok ? piiResult.data : {};
@@ -200,7 +207,9 @@ function buildReport(inputs) {
     (typeof piiData.classification === 'string' ? piiData.classification : piiData.classification?.classification) ||
     (piiResult.ok ? 'Unclassified' : 'Error');
 
+
   const compliance = buildCompliance(piiData);
+
   const recommendations = buildRecommendations({
     riskLevel,
     pii: piiData,
@@ -208,7 +217,6 @@ function buildReport(inputs) {
     clipboard: clipboardResult,
     printControl: printResult,
     usbControl: usbResult,
-    fileType: fileTypeResult,
     shadowAi: shadowAiResult,
     ueba: uebaResult,
   });
@@ -236,7 +244,7 @@ function buildReport(inputs) {
     clipboard: clipboardResult,
     printControl: printResult,
     usbControl: usbResult,
-    fileType: fileTypeResult,
+    encryption: encryptionResult,
     shadowAi: shadowAiResult,
     ueba: uebaResult,
     compliance,
@@ -244,7 +252,7 @@ function buildReport(inputs) {
   };
 }
 
-export async function analyzeDocument(file, user, onProgress) {
+export async function analyzeDocument(file, user, onProgress, userRole = 'employee') {
   if (!file) throw new Error('No file provided for analysis');
 
   const scannedAt = new Date().toISOString();
@@ -264,7 +272,7 @@ export async function analyzeDocument(file, user, onProgress) {
   const piiData = piiResult.ok ? piiResult.data : {};
   const riskLevel = normalizeRisk(piiData.risk_level);
   const accessResult = await runModule(user, 'Analyzing risk & access', onProgress, () =>
-    documentFeatures.accessCheck('employee', riskLevel.toLowerCase())
+    documentFeatures.accessCheck(userRole, riskLevel.toLowerCase())
   );
 
   // 5. Policy Alerts — only raise an alert when the scan actually found something risky
@@ -300,21 +308,16 @@ export async function analyzeDocument(file, user, onProgress) {
   // 8. Print Control
   const documentType = documentTypeFor(riskLevel);
   const printResult = await runModule(user, 'Checking print policy', onProgress, () =>
-    printControl.check('employee', documentType)
+    printControl.check(userRole, documentType)
   );
 
   // 9. USB Control
   const deviceName = `USB Drive (${extension || 'unknown'})`;
   const usbResult = await runModule(user, 'Checking USB policy', onProgress, () =>
-    usbControl.check('employee', deviceName)
+    usbControl.check(userRole, deviceName)
   );
 
-  // 10. File Type Blocking
-  const fileTypeResult = await runModule(user, 'Validating file type', onProgress, () =>
-    fileTypeBlocking.check(file.name)
-  );
-
-  // 11. Shadow AI
+  // 10. Shadow AI
   const aiTool = findAITool(ocrText) || 'Notion AI';
   const shadowAiResult = await runModule(user, 'Detecting shadow AI usage', onProgress, () =>
     shadowAI.detect(aiTool, user)
@@ -324,6 +327,11 @@ export async function analyzeDocument(file, user, onProgress) {
   const accessCount = uebaAccessCountFor(Math.min(100, Number(piiData.risk_score) || 0));
   const uebaResult = await runModule(user, 'Analyzing user behavior', onProgress, () =>
     ueba.analyze(user, 'document_access', accessCount)
+  );
+
+  // 12.5 Auto-Encryption for High/Critical risk documents
+  const encryptionResult = await runModule(user, 'Applying document protection', onProgress, () =>
+    encryption.protect(file, riskLevel, userRole, user)
   );
 
   // 13. Unified Security Report
@@ -341,9 +349,9 @@ export async function analyzeDocument(file, user, onProgress) {
     clipboardResult,
     printResult,
     usbResult,
-    fileTypeResult,
     shadowAiResult,
     uebaResult,
+    encryptionResult,
   });
 
   if (onProgress) onProgress('Analysis complete');

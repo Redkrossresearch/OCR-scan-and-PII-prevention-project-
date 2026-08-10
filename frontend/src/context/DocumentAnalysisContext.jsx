@@ -14,7 +14,7 @@ export function DocumentAnalysisProvider({ children }) {
   const [error, setError] = useState('');
 
   const runAnalysis = useCallback(
-    async (uploadedFile) => {
+    async (uploadedFile, userRole = 'employee') => {
       setFile(uploadedFile);
       setAnalyzing(true);
       setError('');
@@ -25,7 +25,7 @@ export function DocumentAnalysisProvider({ children }) {
         const result = await analyzeDocument(uploadedFile, username, (label) => {
           setCurrentStep(label);
           setProgress((prev) => Math.min(95, prev + 8));
-        });
+        }, userRole);
         setReport(result);
         setProgress(100);
         setCurrentStep('Analysis complete');

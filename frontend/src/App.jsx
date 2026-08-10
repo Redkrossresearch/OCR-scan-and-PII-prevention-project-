@@ -17,6 +17,7 @@ import DLPControls from "./pages/DLPControls/DLPControls";
 import AIBehavior from "./pages/AIBehavior/AIBehavior";
 import Forensic from "./pages/Forensic/Forensic";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import Unlock from "./pages/unlock/Unlock";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -66,6 +67,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/unlock" element={<Unlock />} />
             <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>

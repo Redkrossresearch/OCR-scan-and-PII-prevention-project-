@@ -562,7 +562,6 @@ class PDFReportBuilder:
             ("clipboard", "Clipboard Control"),
             ("printControl", "Print Control"),
             ("usbControl", "USB Control"),
-            ("fileType", "File Type Blocking"),
         ]
         dlp_total = len(controls)
         dlp_blocked = 0
@@ -586,7 +585,7 @@ class PDFReportBuilder:
             "",
             "The document was passed through a unified analysis pipeline comprising OCR text extraction, PII "
             "detection, sensitive-data classification, risk scoring, six DLP controls (policy alerts, email DLP, "
-            "clipboard, print, USB and file-type) and AI / user-behavior analytics (Shadow AI and UEBA).",
+            "clipboard, print and USB) and AI / user-behavior analytics (Shadow AI and UEBA).",
             "",
         ]
         if risk_level:
@@ -827,7 +826,6 @@ class PDFReportBuilder:
             ("clipboard", "Clipboard Control"),
             ("printControl", "Print Control"),
             ("usbControl", "USB Control"),
-            ("fileType", "File Type Blocking"),
         ]
         for key, title in checks:
             data = _data(self.report, key)
@@ -850,9 +848,6 @@ class PDFReportBuilder:
                 summary_rows.append([title, _badge("ALLOWED" if allowed else "BLOCKED", GREEN if allowed else RED), (data.get("message") or "—")])
             elif key == "usbControl":
                 allowed = data.get("usb_allowed")
-                summary_rows.append([title, _badge("ALLOWED" if allowed else "BLOCKED", GREEN if allowed else RED), (data.get("message") or "—")])
-            elif key == "fileType":
-                allowed = data.get("allowed")
                 summary_rows.append([title, _badge("ALLOWED" if allowed else "BLOCKED", GREEN if allowed else RED), (data.get("message") or "—")])
 
         flow.append(_data_table(["Control", "Status", "Detail"], summary_rows, widths=[CONTENT_W * 0.28, CONTENT_W * 0.2, CONTENT_W * 0.52]))
@@ -906,12 +901,7 @@ class PDFReportBuilder:
                     ("Allowed", _badge("YES" if allowed else "NO", GREEN if allowed else RED)),
                     ("Message", _para(data.get("message") or "—", self.styles["BodySm"])),
                 ]
-            else:  # fileType
-                allowed = data.get("allowed")
-                rows = [
-                    ("Allowed", _badge("YES" if allowed else "NO", GREEN if allowed else RED)),
-                    ("Message", _para(data.get("message") or "—", self.styles["BodySm"])),
-                ]
+                
 
             flow.append(_section_band("7.%d %s" % (checks.index((key, title)) + 1, title), accent=(RED if (data.get("blocked") or data.get("allowed") is False or data.get("usb_allowed") is False) else GREEN)))
             flow.append(Spacer(1, 1.5 * mm))

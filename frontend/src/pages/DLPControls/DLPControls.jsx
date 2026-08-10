@@ -5,7 +5,6 @@ import EmailDLPCard from '../../components/EmailDLPCard';
 import ClipboardCard from '../../components/ClipboardCard';
 import PrintControlCard from '../../components/PrintControlCard';
 import USBControlCard from '../../components/USBControlCard';
-import FileTypeBlockingCard from '../../components/FileTypeBlockingCard';
 
 function DLPControlsPage() {
   const { report, analyzing } = useDocumentAnalysis();
@@ -34,7 +33,6 @@ function DLPControlsPage() {
         <ClipboardCard />
         <PrintControlCard />
         <USBControlCard />
-        <FileTypeBlockingCard />
       </div>
     </div>
   );

@@ -110,6 +110,7 @@ export const pii = {
     formData.append('file', file);
     return apiRequest('/pii/detect', { method: 'POST', body: formData });
   },
+
   redact: (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -121,7 +122,16 @@ export const pii = {
     return apiRequest('/pii/blur', { method: 'POST', body: formData });
   },
 };
-
+export const encryption = {
+  protect: (file, riskLevel, userRole, uploadedBy) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('risk_level', riskLevel);
+    formData.append('user_role', userRole);
+    formData.append('uploaded_by', uploadedBy || '');
+    return apiRequest('/encryption/protect', { method: 'POST', body: formData });
+  },
+};
 export const documentFeatures = {
   watermarkCheck: (file) => {
     const formData = new FormData();
@@ -254,14 +264,6 @@ export const usbControl = {
   logs: () => apiRequest('/usb-control/logs'),
 };
 
-export const fileTypeBlocking = {
-  check: (filename) =>
-    apiRequest('/file-type/check', {
-      method: 'POST',
-      body: formDataFrom({ filename }),
-    }),
-  logs: () => apiRequest('/file-type/logs'),
-};
 
 export const shadowAI = {
   detect: (applicationName, user) =>

@@ -3,7 +3,6 @@ from app.api.email_dlp import router as email_dlp_router
 from app.api.clipboard import router as clipboard_router
 from app.api.print_control import router as print_control_router
 from app.api.usb_control import router as usb_control_router
-from app.api.file_type_blocking import router as file_type_router
 from app.api.shadow_ai import router as shadow_ai_router
 from app.api.ueba import router as ueba_router
 from app.api.forensic import router as forensic_router
@@ -12,6 +11,7 @@ from app.api.reports import router as reports_router
 from app.api.audit import router as audit_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.encryption import router as encryption_router
 
 from app.database.database import engine
 from app.database.base import Base
@@ -45,13 +45,13 @@ app.include_router(email_dlp_router, prefix="/api")
 app.include_router(clipboard_router, prefix="/api")
 app.include_router(print_control_router, prefix="/api")
 app.include_router(usb_control_router, prefix="/api")
-app.include_router(file_type_router, prefix="/api")
 app.include_router(shadow_ai_router, prefix="/api")
 app.include_router(ueba_router, prefix="/api")
 app.include_router(forensic_router, prefix="/api")
 app.include_router(document_features_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
 app.include_router(audit_router, prefix="/api")
+app.include_router(encryption_router, prefix="/api")
 app.include_router(qr_barcode_router, prefix="/api")
 app.mount(
     "/uploads",

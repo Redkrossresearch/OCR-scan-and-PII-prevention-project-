@@ -96,7 +96,6 @@ def build_report_csv(report):
         ("clipboard", "Clipboard Control"),
         ("printControl", "Print Control"),
         ("usbControl", "USB Control"),
-        ("fileType", "File Type Blocking"),
     ]
     for key, label in controls:
         mod = report.get(key) or {}
@@ -115,8 +114,6 @@ def build_report_csv(report):
             writer.writerow([label, "ALLOWED" if data.get("allowed") else "BLOCKED", data.get("message", "")])
         elif key == "usbControl":
             writer.writerow([label, "ALLOWED" if data.get("usb_allowed") else "BLOCKED", data.get("message", "")])
-        elif key == "fileType":
-            writer.writerow([label, "ALLOWED" if data.get("allowed") else "BLOCKED", data.get("message", "")])
     writer.writerow([])
 
     # 5. AI & behavior

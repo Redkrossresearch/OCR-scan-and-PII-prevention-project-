@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ocr, reports, audit } from '../../services/api';
+import { ocr, reports, audit, clipboard as clipboardApi } from '../../services/api';
 import { useDocumentAnalysis } from '../../context/DocumentAnalysisContext';
 import { useAuth } from '../../context/AuthContext';
 import SecurityReport from '../../components/report/SecurityReport';
@@ -8,6 +8,8 @@ function OCRPage() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [clipboardCheck, setClipboardCheck] = useState(null);
+  const [userRole, setUserRole] = useState('employee');
   const [error, setError] = useState('');
   const [pdfLoading, setPdfLoading] = useState(false);
   const fileRef = useRef();
@@ -28,9 +30,19 @@ function OCRPage() {
     setLoading(true);
     setError('');
     setResult(null);
+    setClipboardCheck(null);
     try {
       const data = await ocr.extractText(file);
       setResult(data);
+      if (data?.extracted_text) {
+        try {
+          const verdict = await clipboardApi.check({ user: user?.email || 'user', content: data.extracted_text });
+          setClipboardCheck(verdict);
+        } catch {
+          // If the clipboard check itself fails, default to blocked — fail safe, not open.
+          setClipboardCheck({ blocked: true, reason: 'Clipboard policy check failed — copy disabled as a precaution.' });
+        }
+      }
     } catch (err) {
       setError(err.message || 'OCR extraction failed');
     } finally {
@@ -38,11 +50,11 @@ function OCRPage() {
     }
   };
 
-  const handleAnalyze = async () => {
+const handleAnalyze = async () => {
     if (!file) return;
     setError('');
     try {
-      await runAnalysis(file);
+      await runAnalysis(file, userRole);
     } catch (err) {
       setError(err.message || 'Document analysis failed');
     }
@@ -71,9 +83,18 @@ function OCRPage() {
     }
   };
 
+  const isClipboardBlocked = clipboardCheck?.blocked === true;
+
   const copyText = () => {
-    if (result?.extracted_text) {
-      navigator.clipboard.writeText(result.extracted_text);
+    if (isClipboardBlocked || !result?.extracted_text) return;
+    navigator.clipboard.writeText(result.extracted_text);
+  };
+
+  const handleTextCopyAttempt = (e) => {
+    if (isClipboardBlocked) {
+      // Refuse the actual browser copy event — this is what stops manual
+      // select + Ctrl+C from landing anything on the OS clipboard at all.
+      e.preventDefault();
     }
   };
 
@@ -92,6 +113,20 @@ function OCRPage() {
       <div>
         <div className="dli-panel p-5 md:p-6 mb-6">
           <label className="block text-gray-400 text-sm mb-3">Select a file (PDF, PNG, JPG)</label>
+          <div className="mb-3">
+            <label className="text-gray-500 text-xs block mb-1.5">Your Role (used for Print / USB / Encryption authorization)</label>
+            <select
+              value={userRole}
+              onChange={(e) => setUserRole(e.target.value)}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+              <option value="hr">HR</option>
+              <option value="compliance officer">Compliance Officer</option>
+            </select>
+          </div>
           <div className="flex flex-wrap gap-3">
             <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileSelect}
               className="flex-1 min-w-60 bg-slate-800/70 border border-slate-700/70 text-white rounded-xl px-4 py-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:cursor-pointer" />
@@ -141,15 +176,43 @@ function OCRPage() {
                 <h2 className="text-white font-bold">Extracted Text</h2>
                 <p className="text-gray-500 text-sm truncate max-w-full">{result.filename} ({result.file_type?.toUpperCase()})</p>
               </div>
-              <button onClick={copyText}
-                className="bg-slate-800 hover:bg-slate-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors">
-                Copy
+              <button
+                onClick={copyText}
+                disabled={isClipboardBlocked || !result.extracted_text}
+                title={isClipboardBlocked ? 'Copying is blocked — sensitive data detected' : 'Copy extracted text'}
+                className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                  isClipboardBlocked || !result.extracted_text
+                    ? 'bg-slate-800/60 text-slate-500 cursor-not-allowed opacity-60 pointer-events-none'
+                    : 'bg-slate-800 hover:bg-slate-700 text-gray-300 cursor-pointer'
+                }`}
+              >
+                {isClipboardBlocked ? 'Copy Blocked' : 'Copy'}
               </button>
             </div>
+            {clipboardCheck && (
+              <div
+                className={`mx-5 md:mx-6 mt-4 rounded-xl p-3 border text-sm ${
+                  isClipboardBlocked ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-green-500/10 border-green-500/30 text-green-400'
+                }`}
+              >
+                {clipboardCheck.reason}
+              </div>
+            )}
             <div className="p-5 md:p-6">
-              <pre className="text-gray-300 text-sm whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto bg-slate-800/40 border border-slate-800 rounded-xl p-4">
+              <pre
+                onCopy={handleTextCopyAttempt}
+                onCut={handleTextCopyAttempt}
+                className={`text-gray-300 text-sm whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-y-auto bg-slate-800/40 border border-slate-800 rounded-xl p-4 ${
+                  isClipboardBlocked ? 'select-none' : ''
+                }`}
+              >
                 {result.extracted_text || 'No text could be extracted.'}
               </pre>
+              {isClipboardBlocked && (
+                <p className="text-gray-500 text-xs mt-2">
+                  This document contains sensitive data — selecting and copying this text is disabled.
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -174,7 +237,7 @@ function OCRPage() {
                 </button>
               </div>
             </div>
-            <SecurityReport report={report} />
+            <SecurityReport report={report} file={file} />
           </div>
         )}
       </div>

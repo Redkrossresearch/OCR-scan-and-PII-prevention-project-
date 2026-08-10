@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment variables (backend URL for local/testing setups — not secret,
+# but different per machine, so it shouldn't be committed)
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

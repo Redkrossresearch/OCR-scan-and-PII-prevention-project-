@@ -22,7 +22,9 @@ if not DATABASE_URL:
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
+    pool_pre_ping=True,   # ping the connection before using it; drop+reconnect if Neon already closed it
+    pool_recycle=280,     # recycle connections before Neon's idle timeout kicks in
 )
 
 SessionLocal = sessionmaker(
