@@ -4,11 +4,9 @@ import {
   FaSearch,
   FaShieldAlt,
   FaExclamationTriangle,
-  FaBell,
   FaEnvelope,
   FaClipboardCheck,
   FaPrint,
-  FaUsb,
   FaRobot,
   FaChartLine,
   FaBalanceScale,
@@ -153,26 +151,6 @@ function RiskSection({ risk }) {
   );
 }
 
-function PolicyAlertSection({ policyAlert }) {
-  if (!policyAlert.ok) return <Section icon={<FaBell />} title="Policy Alerts"><ModuleError message={policyAlert.error} /></Section>;
-  const alert = policyAlert.data?.alert || policyAlert.data;
-  return (
-    <Section icon={<FaBell />} title="Policy Alerts">
-      <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-white font-semibold">{alert?.policy_name}</p>
-          <div className="flex gap-2">
-            <StatusBadge status={alert?.severity} />
-            <StatusBadge status="active" />
-          </div>
-        </div>
-        <p className="text-gray-300 text-sm">{alert?.description}</p>
-        <p className="text-gray-500 text-xs">{policyAlert.data?.message}</p>
-      </div>
-    </Section>
-  );
-}
-
 function EmailDLPSection({ emailDlp }) {
   if (!emailDlp.ok) return <Section icon={<FaEnvelope />} title="Email DLP Results"><ModuleError message={emailDlp.error} /></Section>;
   const d = emailDlp.data;
@@ -188,15 +166,15 @@ function EmailDLPSection({ emailDlp }) {
         </div>
         <StatusBadge status={blocked ? 'blocked' : 'allowed'} />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <StatBox label="Risk Level" badge={<StatusBadge status={d?.risk_level} />} />
         <StatBox label="Sensitive Data" value={d?.detected_types?.length || 0} color={d?.detected_types?.length ? 'text-red-400' : 'text-green-400'} />
-        <StatBox
-          label="Detected Types"
-          value={d?.detected_types?.length ? d.detected_types.map((t) => t.toUpperCase()).join(', ') : 'None'}
-          color="text-gray-300"
-          className="col-span-2 md:col-span-1"
-        />
+      </div>
+      <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
+        <p className="text-gray-400 text-xs mb-1">Detected Sensitive Types</p>
+        <p className="text-gray-300 text-sm break-words">
+          {d?.detected_types?.length ? d.detected_types.map((t) => t.toUpperCase()).join(', ') : 'None found'}
+        </p>
       </div>
       <p className="text-gray-400 text-sm mt-3 break-words">{d?.message}</p>
     </Section>
@@ -326,22 +304,6 @@ function PrintSection({ printControl, file }) {
   );
 }
 
-function USBSection({ usbControl }) {
-  if (!usbControl.ok) return <Section icon={<FaUsb />} title="USB Policy Result"><ModuleError message={usbControl.error} /></Section>;
-  return (
-    <Section icon={<FaUsb />} title="USB Policy Result">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-        <StatBox label="USB Access" badge={<StatusBadge status={usbControl.data?.usb_allowed ? 'allowed' : 'blocked'} />} />
-        <StatBox label="Status" badge={<StatusBadge status={usbControl.data?.usb_allowed ? 'enabled' : 'disabled'} />} />
-        <StatBox label="Device" value={usbControl.data?.input?.device_name} color="text-blue-400" />
-      </div>
-      <div className={`rounded-xl p-4 border ${usbControl.data?.usb_allowed ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-        <p className={`text-sm break-words ${usbControl.data?.usb_allowed ? 'text-green-400' : 'text-red-400'}`}>{usbControl.data?.message}</p>
-      </div>
-    </Section>
-  );
-}
-
 function EncryptionSection({ encryption }) {
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -377,19 +339,21 @@ function EncryptionSection({ encryption }) {
         <StatBox label="Your Access" badge={<StatusBadge status={d?.authorized ? 'allowed' : 'blocked'} />} />
         <StatBox label="Password" value={d?.authorized ? d?.password : 'Hidden'} color={d?.authorized ? 'text-amber-400' : 'text-gray-500'} />
       </div>
-      <div className="rounded-xl p-4 border mb-4 bg-slate-800/60 border-slate-700/60">
-        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Password Hint</p>
-        <p className="text-sm text-gray-300 break-words">{d?.hint}</p>
-        {!d?.authorized && (
-          <p className="text-xs text-gray-500 mt-1">
-            Use the uploader shown in Document Information above, along with the year, to work out the password.
+      {d?.authorized && (
+        <div className="rounded-xl p-4 border mb-4 bg-slate-800/60 border-slate-700/60">
+          <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+            Password Hint
           </p>
-        )}
-      </div>
+          <p className="text-sm text-gray-300 break-words">
+            {d?.hint}
+          </p>
+        </div>
+      )}
+
       <div className={`rounded-xl p-4 border mb-4 ${d?.authorized ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
         <p className={`text-sm break-words ${d?.authorized ? 'text-amber-400' : 'text-red-400'}`}>{d?.message}</p>
       </div>
-      {d?.protected_file && (
+      {d?.protected_file && d?.authorized && (
         <div className="flex flex-col sm:flex-row gap-3">
           <a
             href={`${(import.meta.env?.VITE_API_BASE_URL) || 'http://localhost:8000'}${d.protected_file}`}
@@ -496,16 +460,14 @@ function RecommendationsSection({ recommendations }) {
 function SecurityReport({ report, file }) {
   if (!report) return null;
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <DocumentSection document={report.document} />
       <OCRSection ocr={report.ocr} clipboard={report.clipboard} />
       <PIISection pii={report.pii} />
       <RiskSection risk={report.risk} />
-      <PolicyAlertSection policyAlert={report.policyAlert} />
       <EmailDLPSection emailDlp={report.emailDlp} />
       <ClipboardSection clipboard={report.clipboard} extractedText={report.ocr?.ok ? report.ocr.data?.extracted_text || '' : ''} />
       <PrintSection printControl={report.printControl} file={file} />
-      <USBSection usbControl={report.usbControl} />
       <EncryptionSection encryption={report.encryption} />
       <ShadowAISection shadowAi={report.shadowAi} pii={report.pii} />
       <UEBASection ueba={report.ueba} />
