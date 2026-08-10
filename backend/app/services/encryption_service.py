@@ -91,7 +91,7 @@ class EncryptionService:
             "encrypted": True,
             "output_path": output_path,
             "password": password if is_authorized else None,
-            "hint": EncryptionService.PASSWORD_HINT,
+            "hint": EncryptionService.PASSWORD_HINT if is_authorized else None,
             "authorized": is_authorized,
             "message": (
                 "Document encrypted — password shown because your role is authorized."
