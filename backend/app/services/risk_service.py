@@ -37,13 +37,13 @@ class RiskService:
 
         score += keyword_count * RiskService.WEIGHTS["keywords"]
 
-        if score == 0:
+        if score <= 20:
             level = "LOW"
 
-        elif score <= 5:
+        elif score <= 40:
             level = "MEDIUM"
 
-        elif score <= 12:
+        elif score <= 60:
             level = "HIGH"
 
         else:
