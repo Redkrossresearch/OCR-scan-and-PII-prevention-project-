@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 class ShadowAIService:
 
     def __init__(self):
@@ -34,7 +35,8 @@ class ShadowAIService:
             return {
                 "shadow_ai_detected": True,
                 "message": "Unauthorized AI tool usage detected",
-                "input": {"application_name": application_name}
+                "input": {"application_name": application_name},
+                "detected_at": datetime.now(timezone.utc).isoformat(),
             }
 
 
@@ -49,7 +51,8 @@ class ShadowAIService:
         return {
             "shadow_ai_detected": False,
             "message": "No unauthorized AI usage detected",
-            "input": {"application_name": application_name}
+            "input": {"application_name": application_name},
+            "detected_at": datetime.now(timezone.utc).isoformat(),
         }
 
 
