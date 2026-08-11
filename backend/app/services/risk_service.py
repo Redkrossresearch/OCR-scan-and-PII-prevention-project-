@@ -39,18 +39,19 @@ class RiskService:
 
         if score <= 25:
             level = "LOW"
-
         elif score <= 50:
             level = "MEDIUM"
-
         elif score <= 75:
             level = "HIGH"
-
         else:
             level = "CRITICAL"
 
+        # cap the score here so every screen (Upload, Detection, Risk
+        # Analysis, PDF/CSV reports) automatically gets the same capped number
+        capped_score = min(score, 100)
+
         return {
-            "risk_score": score,
+            "risk_score": capped_score,
             "risk_level": level,
             "risk_breakdown": breakdown,
         }
