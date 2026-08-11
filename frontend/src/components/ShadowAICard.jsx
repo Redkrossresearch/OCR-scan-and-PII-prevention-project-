@@ -25,7 +25,7 @@ function ShadowAICard() {
 
   const detected = shadowAi?.ok && shadowAi.data?.shadow_ai_detected === true;
   const sensitive = shadowAi?.ok ? detectSensitiveData(ocrText) : [];
-  const riskScore = detected ? 90 : sensitive.length ? 65 : 10;
+  const riskScore = detected ? 90 : sensitive.length ? 65 : 0;
   const unsafePrompt = detected || sensitive.length > 0;
   const recommendation = detected
     ? 'Blocked. This application is not an approved tool. Request access through IT or use the approved AI platform.'
@@ -43,18 +43,22 @@ function ShadowAICard() {
 
       {report && shadowAi?.ok && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <StatBox label="Shadow AI" badge={<StatusBadge status={detected ? 'detected' : 'safe'} />} />
-            <StatBox label="Application" value={shadowAi.data?.input?.application_name} color="text-blue-400" />
             <StatBox
               label="Sensitive Data"
               value={sensitive.length ? sensitive.join(', ') : 'None'}
               color={sensitive.length ? 'text-red-400' : 'text-green-400'}
             />
-            <StatBox label="Verdict" badge={<StatusBadge status={unsafePrompt ? 'blocked' : 'allowed'} />} />
+            <StatBox
+              label="Detected At"
+              value={shadowAi.data?.detected_at ? new Date(shadowAi.data.detected_at).toLocaleString() : '—'}
+              color="text-gray-300"
+            />
           </div>
 
-          <ProgressBar label="Risk Score" value={riskScore} />
+          <ProgressBar label="AI Usage Risk Score" value={riskScore} />
+          <p className="text-slate-500 text-xs -mt-2">Reflects unauthorized AI tool usage and sensitive prompt content — not the document's overall risk score (see Risk tab).</p>
 
           <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4">
             <p className="text-indigo-300 text-xs mb-1">Recommendation</p>

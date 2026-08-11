@@ -1,8 +1,5 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDocumentAnalysis } from '../../context/DocumentAnalysisContext';
-import { documentFeatures, audit } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
 
 const PII_KEYS = [
   { key: 'emails', label: 'Emails' },
@@ -68,9 +65,12 @@ function buildFactors(report) {
       }
     });
   } else if (breakdown && typeof breakdown === 'object') {
-    Object.entries(breakdown).forEach(([name, score]) => {
-      factors.push({ label: name.replace(/_/g, ' '), weight: score > 40 ? 'high' : 'medium', reason: `Score contribution: ${score}` });
-    });
+    Object.entries(breakdown)
+      .filter(([, score]) => Number(score) > 0)
+      .forEach(([name, score]) => {
+        const weight = score > 40 ? 'high' : score > 15 ? 'medium' : 'low';
+        factors.push({ label: name.replace(/_/g, ' '), weight, reason: `Score contribution: ${score}` });
+      });
   }
 
   PII_KEYS.forEach(({ key, label }) => {
@@ -83,8 +83,8 @@ function buildFactors(report) {
     }
   });
 
-  const blockedControls = ['emailDlp', 'clipboard', 'printControl', 'usbControl', 'fileType'].filter(
-    (key) => report?.[key]?.data && (report[key].data.blocked || report[key].data.allowed === false || report[key].data.usb_allowed === false || report[key].data.sensitive_data_found)
+  const blockedControls = ['emailDlp', 'clipboard', 'printControl', 'fileType'].filter(
+    (key) => report?.[key]?.data && (report[key].data.blocked || report[key].data.allowed === false || report[key].data.sensitive_data_found)
   );
   if (blockedControls.length > 0) {
     factors.push({
@@ -108,10 +108,6 @@ function buildFactors(report) {
 
 function RiskPage() {
   const { report, error } = useDocumentAnalysis();
-  const { user } = useAuth();
-  const [userRole, setUserRole] = useState('employee');
-  const [accessResult, setAccessResult] = useState(null);
-  const [accessLoading, setAccessLoading] = useState(false);
 
   const risk = report?.risk || {};
   const riskLevel = risk.risk_level || 'Low';
@@ -119,21 +115,6 @@ function RiskPage() {
   const colors = riskColor(riskLevel);
   const factors = buildFactors(report);
   const recommendations = report?.recommendations || [];
-
-  const handleAccessCheck = async () => {
-    setAccessLoading(true);
-    setAccessResult(null);
-    try {
-      const level = String(riskLevel || '').toLowerCase();
-      const data = await documentFeatures.accessCheck(userRole, level);
-      setAccessResult(data);
-      audit.log(user?.email, 'ACCESS_CHECK', `Access check: role=${userRole}, risk=${level} → ${data.access || data.access_allowed}`);
-    } catch (err) {
-      setAccessResult({ access: 'Error', reason: err.message || 'Access check failed' });
-    } finally {
-      setAccessLoading(false);
-    }
-  };
 
   return (
     <div className="bg-slate-950 min-h-screen p-4 sm:p-6 lg:p-8">
@@ -214,44 +195,6 @@ function RiskPage() {
               ))}
               {recommendations.length === 0 && <li className="text-gray-500">No recommendations available for this scan.</li>}
             </ol>
-          </div>
-
-          {/* Access control tool */}
-          <div className="dli-panel p-5 md:p-6">
-            <h2 className="text-white text-lg font-bold mb-4">Access Control Check</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              Evaluate whether a user role should be granted access to a document at the scanned risk level ({riskLevel}).
-            </p>
-            <div className="flex flex-wrap items-end gap-4 mb-6">
-              <div>
-                <label className="block text-gray-400 text-sm mb-2">User Role</label>
-                <select value={userRole} onChange={(e) => setUserRole(e.target.value)}
-                  className="w-48 bg-slate-800/70 border border-slate-700/70 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors">
-                  <option value="viewer">Viewer</option>
-                  <option value="employee">Employee</option>
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button onClick={handleAccessCheck} disabled={accessLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors disabled:opacity-50">
-                {accessLoading ? 'Checking...' : 'Check Access'}
-              </button>
-            </div>
-            {accessResult && (
-              <div className={`rounded-xl p-4 border ${
-                String(accessResult.access).toLowerCase() === 'granted' || accessResult.access_allowed
-                  ? 'bg-green-500/10 border-green-500/30'
-                  : 'bg-red-500/10 border-red-500/30'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <span className={`text-2xl font-bold ${String(accessResult.access).toLowerCase() === 'granted' || accessResult.access_allowed ? 'text-green-400' : 'text-red-400'}`}>
-                    {accessResult.access || (accessResult.access_allowed ? 'Granted' : 'Denied')}
-                  </span>
-                  <span className="text-gray-400 text-sm min-w-0 break-words">{(accessResult.reason || accessResult.message || accessResult.access_reason || '').toString()}</span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

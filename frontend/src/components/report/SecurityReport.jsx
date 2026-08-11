@@ -4,7 +4,6 @@ import {
   FaSearch,
   FaShieldAlt,
   FaExclamationTriangle,
-  FaEnvelope,
   FaClipboardCheck,
   FaPrint,
   FaRobot,
@@ -30,7 +29,7 @@ const PII_COUNTS = [
 
 function Section({ icon, title, children }) {
   return (
-    <div className="dli-panel p-5 md:p-6">
+    <div className="dli-panel p-5 md:p-6 mb-6 break-inside-avoid">
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800/60">
         <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-base">
           {icon}
@@ -151,35 +150,7 @@ function RiskSection({ risk }) {
   );
 }
 
-function EmailDLPSection({ emailDlp }) {
-  if (!emailDlp.ok) return <Section icon={<FaEnvelope />} title="Email DLP Results"><ModuleError message={emailDlp.error} /></Section>;
-  const d = emailDlp.data;
-  const blocked = d?.sensitive_data_found === true || d?.risk_level === 'High';
-  return (
-    <Section icon={<FaEnvelope />} title="Email DLP Results">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="min-w-0">
-          <p className="text-white font-medium truncate max-w-full">{d?.subject || d?.input?.subject}</p>
-          <p className="text-gray-500 text-sm truncate max-w-full">
-            {d?.input?.sender} → {d?.input?.receiver}
-          </p>
-        </div>
-        <StatusBadge status={blocked ? 'blocked' : 'allowed'} />
-      </div>
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <StatBox label="Risk Level" badge={<StatusBadge status={d?.risk_level} />} />
-        <StatBox label="Sensitive Data" value={d?.detected_types?.length || 0} color={d?.detected_types?.length ? 'text-red-400' : 'text-green-400'} />
-      </div>
-      <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
-        <p className="text-gray-400 text-xs mb-1">Detected Sensitive Types</p>
-        <p className="text-gray-300 text-sm break-words">
-          {d?.detected_types?.length ? d.detected_types.map((t) => t.toUpperCase()).join(', ') : 'None found'}
-        </p>
-      </div>
-      <p className="text-gray-400 text-sm mt-3 break-words">{d?.message}</p>
-    </Section>
-  );
-}
+
 
 function ClipboardSection({ clipboard, extractedText }) {
   const [copyStatus, setCopyStatus] = useState('');
@@ -385,18 +356,23 @@ function ShadowAISection({ shadowAi, pii }) {
   const keywordCategories = pii?.ok && Array.isArray(pii.data?.keyword_categories) ? pii.data.keyword_categories : [];
   const sensitive = [...sensitiveTypes, ...keywordCategories];
 
-  const riskScore = detected ? 90 : sensitive.length ? 65 : 10;
+  const riskScore = detected ? 90 : sensitive.length ? 65 : 0;
   const unsafe = detected || sensitive.length > 0;
 
   return (
     <Section icon={<FaRobot />} title="Shadow AI Analysis">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <StatBox label="Shadow AI" badge={<StatusBadge status={detected ? 'detected' : 'safe'} />} />
-        <StatBox label="Application" value={shadowAi.data?.input?.application_name} color="text-blue-400" />
-        <StatBox label="Sensitive Data" value={sensitive.length ? sensitive.join(', ') : 'None'} color={sensitive.length ? 'text-red-400' : 'text-green-400'} />
-        <StatBox label="Verdict" badge={<StatusBadge status={unsafe ? 'blocked' : 'allowed'} />} />
+      <div className="flex flex-wrap gap-3 mb-4">
+        <StatBox label="Shadow AI" badge={<StatusBadge status={detected ? 'detected' : 'safe'} />} className="flex-1 min-w-[140px]" />
+        <StatBox label="Sensitive Data" value={sensitive.length ? sensitive.join(', ') : 'None'} color={sensitive.length ? 'text-red-400' : 'text-green-400'} className="flex-1 min-w-[140px]" />
+        <StatBox
+          label="Detected At"
+          value={shadowAi.data?.detected_at ? new Date(shadowAi.data.detected_at).toLocaleString() : '—'}
+          color="text-gray-300"
+          className="flex-1 min-w-[140px]"
+        />
       </div>
-      <ProgressBar label="Risk Score" value={riskScore} />
+      <ProgressBar label="AI Usage Risk Score" value={riskScore} />
+      <p className="text-slate-500 text-xs mt-1">Reflects unauthorized AI tool usage and sensitive prompt content — not the document's overall risk score (see Risk tab).</p>
       <div className={`rounded-xl p-4 border mt-4 ${unsafe ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
         <p className={`text-sm break-words ${unsafe ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
       </div>
@@ -406,16 +382,17 @@ function ShadowAISection({ shadowAi, pii }) {
 
 function UEBASection({ ueba }) {
   if (!ueba.ok) return <Section icon={<FaChartLine />} title="UEBA Analysis"><ModuleError message={ueba.error} /></Section>;
-  const anomaly = ueba.data?.risk_level === 'High';
+  const anomaly = ueba.data?.risk_level === 'High' || ueba.data?.risk_level === 'Critical';
+  const uebaScore =
+    ueba.data?.risk_level === 'Critical' ? 100 : ueba.data?.risk_level === 'High' ? 90 : ueba.data?.risk_level === 'Medium' ? 55 : 0;
   return (
     <Section icon={<FaChartLine />} title="UEBA Analysis">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <StatBox label="User" value={ueba.data?.user} color="text-blue-400" />
-        <StatBox label="Risk Level" badge={<StatusBadge status={ueba.data?.risk_level} />} />
-        <StatBox label="Anomaly" badge={<StatusBadge status={anomaly ? 'detected' : 'safe'} />} />
-        <StatBox label="Action" value={ueba.data?.input?.action} color="text-gray-300" />
+      <div className="flex flex-wrap gap-3 mb-4">
+        <StatBox label="User" value={ueba.data?.user} color="text-blue-400" className="flex-1 min-w-[140px]" />
+        <StatBox label="Risk Level" badge={<StatusBadge status={ueba.data?.risk_level} />} className="flex-1 min-w-[140px]" />
+        <StatBox label="Anomaly" badge={<StatusBadge status={anomaly ? 'detected' : 'safe'} />} className="flex-1 min-w-[140px]" />
       </div>
-      <ProgressBar label="Risk Score" value={ueba.data?.risk_level === 'High' ? 90 : ueba.data?.risk_level === 'Medium' ? 55 : 15} />
+      <ProgressBar label="Risk Score" value={uebaScore} />
       <div className={`rounded-xl p-4 border mt-4 ${anomaly ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
         <p className={`text-sm break-words ${anomaly ? 'text-red-400' : 'text-green-400'}`}>{ueba.data?.message}</p>
       </div>
@@ -460,12 +437,12 @@ function RecommendationsSection({ recommendations }) {
 function SecurityReport({ report, file }) {
   if (!report) return null;
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div className="columns-1 lg:columns-2 gap-6">
       <DocumentSection document={report.document} />
       <OCRSection ocr={report.ocr} clipboard={report.clipboard} />
       <PIISection pii={report.pii} />
       <RiskSection risk={report.risk} />
-      <EmailDLPSection emailDlp={report.emailDlp} />
+      
       <ClipboardSection clipboard={report.clipboard} extractedText={report.ocr?.ok ? report.ocr.data?.extracted_text || '' : ''} />
       <PrintSection printControl={report.printControl} file={file} />
       <EncryptionSection encryption={report.encryption} />

@@ -318,7 +318,7 @@ export async function analyzeDocument(file, user, onProgress, userRole = 'employ
   );
 
   // 10. Shadow AI
-  const aiTool = findAITool(ocrText) || 'Notion AI';
+  const aiTool = findAITool(ocrText) || 'No AI Tool Detected';
   const shadowAiResult = await runModule(user, 'Detecting shadow AI usage', onProgress, () =>
     shadowAI.detect(aiTool, user)
   );

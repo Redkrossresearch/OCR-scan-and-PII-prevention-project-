@@ -4,7 +4,7 @@ import { ueba } from '../services/api';
 import { useDocumentAnalysis } from '../context/DocumentAnalysisContext';
 import { Card, Spinner, StatusBadge, StatBox, ProgressBar, EmptyAnalysis, ModuleError } from './common/UI';
 
-const RISK_SCORE = { Low: 15, Medium: 55, High: 90 };
+const RISK_SCORE = { Low: 0, Medium: 55, High: 90, Critical: 100 };
 
 function UEBACard() {
   const { report, analyzing, currentStep } = useDocumentAnalysis();
@@ -36,10 +36,12 @@ function UEBACard() {
   }, [username]);
 
   const riskScore = uebaResult?.ok ? RISK_SCORE[uebaResult.data?.risk_level] ?? 0 : 0;
-  const anomaly = uebaResult?.ok && uebaResult.data?.risk_level === 'High';
+  const anomaly = uebaResult?.ok && (uebaResult.data?.risk_level === 'High' || uebaResult.data?.risk_level === 'Critical');
 
   const recommendations = uebaResult?.ok
-    ? uebaResult.data?.risk_level === 'High'
+    ? uebaResult.data?.risk_level === 'Critical'
+      ? 'Critical anomaly detected. Immediately suspend access and escalate to security for investigation.'
+      : uebaResult.data?.risk_level === 'High'
       ? 'Anomalies detected. Suspend access and review the user account for compromise or data exfiltration.'
       : uebaResult.data?.risk_level === 'Medium'
       ? 'Elevated behavior detected. Monitor this user closely and enforce additional verification.'
@@ -56,11 +58,10 @@ function UEBACard() {
 
       {report && uebaResult?.ok && (
         <div className="space-y-5">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <StatBox label="User" value={uebaResult.data?.user} color="text-blue-400" />
             <StatBox label="Risk Level" badge={<StatusBadge status={uebaResult.data?.risk_level} />} />
             <StatBox label="Anomaly" badge={<StatusBadge status={anomaly ? 'detected' : 'safe'} />} />
-            <StatBox label="Action" value={uebaResult.data?.input?.action} color="text-gray-300" />
           </div>
 
           <ProgressBar label="Risk Score" value={riskScore} />

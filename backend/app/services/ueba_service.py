@@ -11,13 +11,17 @@ class UEBAService:
         access_count: int
     ):
 
-        risk_level = "Low"
+        if access_count > 75:
+            risk_level = "Critical"
 
-        if access_count > 50:
+        elif access_count > 50:
             risk_level = "High"
 
-        elif access_count > 20:
+        elif access_count > 25:
             risk_level = "Medium"
+
+        else:
+            risk_level = "Low"
 
 
         record = {

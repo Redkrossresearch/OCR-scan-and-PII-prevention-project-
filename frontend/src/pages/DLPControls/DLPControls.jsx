@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useDocumentAnalysis } from '../../context/DocumentAnalysisContext';
-import PolicyAlertsCard from '../../components/PolicyAlertsCard';
-import EmailDLPCard from '../../components/EmailDLPCard';
+
+
 import ClipboardCard from '../../components/ClipboardCard';
 import PrintControlCard from '../../components/PrintControlCard';
-import USBControlCard from '../../components/USBControlCard';
+
 
 function DLPControlsPage() {
   const { report, analyzing } = useDocumentAnalysis();
@@ -28,11 +28,10 @@ function DLPControlsPage() {
           : 'No document analyzed yet. Scan a document from the OCR Scanner page to view DLP results.'}
       </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PolicyAlertsCard />
-        <EmailDLPCard />
+       
         <ClipboardCard />
         <PrintControlCard />
-        <USBControlCard />
+        
       </div>
     </div>
   );

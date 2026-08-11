@@ -50,6 +50,7 @@ export function StatusBadge({ status }) {
     inactive: 'bg-gray-500/10 text-gray-400 border-gray-500/30',
     disabled: 'bg-gray-500/10 text-gray-400 border-gray-500/30',
     enabled: 'bg-green-500/10 text-green-400 border-green-500/30',
+    critical: 'bg-rose-600/20 text-rose-300 border-rose-600/40',
     high: 'bg-red-500/10 text-red-400 border-red-500/30',
     medium: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
     low: 'bg-green-500/10 text-green-400 border-green-500/30',
