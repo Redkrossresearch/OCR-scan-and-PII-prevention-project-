@@ -1,7 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { pii } from '../../services/api';
+import { useDocumentAnalysis } from '../../context/DocumentAnalysisContext';
 
 function DetectionPage() {
+  const { file: sharedFile, report: sharedReport } = useDocumentAnalysis();
+
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -10,6 +13,16 @@ function DetectionPage() {
   const [activeTab, setActiveTab] = useState('pii');
 
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (sharedReport?.pii?.ok && (!file || file === sharedFile)) {
+      setFile(sharedFile);
+      setResult(sharedReport.pii.data);
+      setError('');
+      setOutputFile(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sharedReport, sharedFile]);
 
   const handleFileSelect = (e) => {
     if (e.target.files.length > 0) {
@@ -156,64 +169,27 @@ function DetectionPage() {
             {error}
           </div>
         )}
+        {result && file === sharedFile && sharedReport?.pii?.ok && (
+          <div className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-4 py-3 rounded-xl mb-6 text-sm break-words">
+            Showing PII results from the document already uploaded/analyzed on the Upload tab ("{file?.name}"). Pick a different file above to scan something else.
+          </div>
+        )}
 
         {result && (
           <>
-            {/* Risk Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+{/* Risk Summary */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Risk Score</p>
-
-                <p
-                  className={`text-3xl font-bold mt-1 ${
-                    result.risk_score > 70
-                      ? 'text-red-400'
-                      : result.risk_score > 40
-                      ? 'text-amber-400'
-                      : 'text-green-400'
-                  }`}
-                >
+                <p className={`text-3xl font-bold mt-1 ${result.risk_score > 70 ? 'text-red-400' : result.risk_score > 40 ? 'text-amber-400' : 'text-green-400'}`}>
                   {result.risk_score}
                 </p>
               </div>
 
               <div className="dli-panel p-4 text-center">
                 <p className="text-gray-400 text-sm">Risk Level</p>
-
-                <p
-                  className={`text-3xl font-bold mt-1 ${
-                    result.risk_level === 'High'
-                      ? 'text-red-400'
-                      : result.risk_level === 'Medium'
-                      ? 'text-amber-400'
-                      : 'text-green-400'
-                  }`}
-                >
+                <p className={`text-3xl font-bold mt-1 ${result.risk_level === 'High' ? 'text-red-400' : result.risk_level === 'Medium' ? 'text-amber-400' : 'text-green-400'}`}>
                   {result.risk_level}
-                </p>
-              </div>
-
-              <div className="dli-panel p-4 text-center">
-                <p className="text-gray-400 text-sm">Classification</p>
-
-                <p className="text-3xl font-bold mt-1 text-indigo-400">
-                  {typeof result.classification === 'string'
-                    ? result.classification
-                    : result.classification?.classification || 'N/A'}
-                </p>
-              </div>
-
-              <div className="dli-panel p-4 text-center">
-                <p className="text-gray-400 text-sm">Access</p>
-
-                <p
-                  className={`text-3xl font-bold mt-1 ${
-                    result.access_allowed
-                      ? 'text-green-400'
-                      : 'text-red-400'
-                  }`}
-                >
-                  {result.access_allowed ? 'Allowed' : 'Denied'}
                 </p>
               </div>
             </div>

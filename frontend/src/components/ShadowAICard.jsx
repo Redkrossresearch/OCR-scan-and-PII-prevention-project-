@@ -18,6 +18,21 @@ function detectSensitiveData(text) {
   return found;
 }
 
+const AI_TOOL_NAMES = ['chatgpt', 'openai', 'copilot', 'gemini', 'bard', 'claude'];
+
+function detectAIMention(text) {
+  const lower = String(text || '').toLowerCase();
+  return AI_TOOL_NAMES.filter((name) => lower.includes(name));
+}
+
+// Heavier weight = riskier to leak if this field ends up inside an AI chat prompt.
+const PASTE_RISK_WEIGHTS = { Email: 15, 'Phone Number': 25, PAN: 35, Aadhaar: 40, 'Credit Card': 50 };
+
+function calculatePasteRiskScore(sensitiveTypes) {
+  const score = sensitiveTypes.reduce((sum, type) => sum + (PASTE_RISK_WEIGHTS[type] || 10), 0);
+  return Math.min(score, 100);
+}
+
 function ShadowAICard() {
   const { report, analyzing, currentStep } = useDocumentAnalysis();
   const shadowAi = report?.shadowAi;
@@ -25,7 +40,9 @@ function ShadowAICard() {
 
   const detected = shadowAi?.ok && shadowAi.data?.shadow_ai_detected === true;
   const sensitive = shadowAi?.ok ? detectSensitiveData(ocrText) : [];
-  const riskScore = detected ? 90 : sensitive.length ? 65 : 0;
+  const aiMentions = shadowAi?.ok ? detectAIMention(ocrText) : [];
+  const aiMentionScore = aiMentions.length ? 100 : 0;
+  const pasteRiskScore = calculatePasteRiskScore(sensitive);
   const unsafePrompt = detected || sensitive.length > 0;
   const recommendation = detected
     ? 'Blocked. This application is not an approved tool. Request access through IT or use the approved AI platform.'
@@ -57,8 +74,20 @@ function ShadowAICard() {
             />
           </div>
 
-          <ProgressBar label="AI Usage Risk Score" value={riskScore} />
-          <p className="text-slate-500 text-xs -mt-2">Reflects unauthorized AI tool usage and sensitive prompt content — not the document's overall risk score (see Risk tab).</p>
+          <ProgressBar label="AI Tool Mention Score" value={aiMentionScore} />
+          <p className="text-slate-500 text-xs -mt-2">
+            {aiMentions.length
+              ? `Document/image text mentions: ${aiMentions.join(', ')}`
+              : 'No AI tool names found in the document/image text.'}
+          </p>
+
+          <ProgressBar label="Paste Risk Score (ChatGPT / Copilot)" value={pasteRiskScore} />
+          <p className="text-slate-500 text-xs -mt-2">
+            {sensitive.length
+              ? `If this doc were pasted into an AI chat, it would expose: ${sensitive.join(', ')}`
+              : 'No sensitive data found — low risk if this doc were pasted into an AI chat.'}
+          </p>
+          <p className="text-slate-500 text-xs -mt-2">Not the document's overall risk score (see Risk tab).</p>
 
           <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4">
             <p className="text-indigo-300 text-xs mb-1">Recommendation</p>

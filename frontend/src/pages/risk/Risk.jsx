@@ -147,8 +147,6 @@ function RiskPage() {
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${colors.bg} ${colors.text} border ${colors.border}`}>
                   {riskLevel}
                 </span>
-                <div className="text-sm text-gray-500 mt-4 mb-1">Classification</div>
-                <div className="text-white font-semibold break-words">{risk.classification || 'Unclassified'}</div>
               </div>
               <div className="min-w-0">
                 <div className="text-sm text-gray-500 mb-1">Scanned</div>

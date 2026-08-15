@@ -138,10 +138,9 @@ function RiskSection({ risk }) {
   const access = risk.access?.ok ? risk.access.data : null;
   return (
     <Section icon={<FaExclamationTriangle />} title="Risk Analysis">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
         <StatBox label="Risk Score" value={risk.risk_score} color={scoreColor} />
         <StatBox label="Risk Level" badge={<StatusBadge status={risk.risk_level} />} />
-        <StatBox label="Classification" value={risk.classification} color="text-blue-400" />
         <StatBox label="Access" badge={<StatusBadge status={access?.access === 'Granted' ? 'allowed' : 'blocked'} />} />
       </div>
       <ProgressBar label="Risk Score" value={risk.risk_score} />
@@ -181,9 +180,8 @@ function ClipboardSection({ clipboard, extractedText }) {
 
   return (
     <Section icon={<FaClipboardCheck />} title="Clipboard Analysis">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <StatBox label="Verdict" badge={<StatusBadge status={isBlocked ? 'blocked' : 'allowed'} />} />
-        <StatBox label="Risk Score" value={isBlocked ? '85%' : '10%'} color={isBlocked ? 'text-red-400' : 'text-green-400'} />
         <StatBox label="Sensitive Data" value={isBlocked ? 'Detected' : 'None'} color={isBlocked ? 'text-red-400' : 'text-green-400'} />
       </div>
       <div className={`rounded-xl p-4 border mb-4 ${isBlocked ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
@@ -346,7 +344,22 @@ function EncryptionSection({ encryption }) {
   );
 }
 
-function ShadowAISection({ shadowAi, pii }) {
+const AI_TOOL_NAMES = ['chatgpt', 'openai', 'copilot', 'gemini', 'bard', 'claude'];
+
+function detectAIMention(text) {
+  const lower = String(text || '').toLowerCase();
+  return AI_TOOL_NAMES.filter((name) => lower.includes(name));
+}
+
+// Heavier weight = riskier to leak if this field ends up inside an AI chat prompt.
+const PASTE_RISK_WEIGHTS = { Email: 15, 'Phone Number': 25, PAN: 35, Aadhaar: 40, 'Credit Card': 50 };
+
+function calculatePasteRiskScore(sensitiveTypes) {
+  const score = sensitiveTypes.reduce((sum, type) => sum + (PASTE_RISK_WEIGHTS[type] || 10), 0);
+  return Math.min(score, 100);
+}
+
+function ShadowAISection({ shadowAi, pii, ocrText }) {
   if (!shadowAi.ok) return <Section icon={<FaRobot />} title="Shadow AI Analysis"><ModuleError message={shadowAi.error} /></Section>;
   const detected = shadowAi.data?.shadow_ai_detected === true;
 
@@ -356,7 +369,9 @@ function ShadowAISection({ shadowAi, pii }) {
   const keywordCategories = pii?.ok && Array.isArray(pii.data?.keyword_categories) ? pii.data.keyword_categories : [];
   const sensitive = [...sensitiveTypes, ...keywordCategories];
 
-  const riskScore = detected ? 90 : sensitive.length ? 65 : 0;
+  const aiMentions = detectAIMention(ocrText);
+  const aiMentionScore = aiMentions.length ? 100 : 0;
+  const pasteRiskScore = calculatePasteRiskScore(sensitive);
   const unsafe = detected || sensitive.length > 0;
 
   return (
@@ -371,8 +386,20 @@ function ShadowAISection({ shadowAi, pii }) {
           className="flex-1 min-w-[140px]"
         />
       </div>
-      <ProgressBar label="AI Usage Risk Score" value={riskScore} />
-      <p className="text-slate-500 text-xs mt-1">Reflects unauthorized AI tool usage and sensitive prompt content — not the document's overall risk score (see Risk tab).</p>
+      <ProgressBar label="AI Tool Mention Score" value={aiMentionScore} />
+      <p className="text-slate-500 text-xs mt-1">
+        {aiMentions.length
+          ? `Document/image text mentions: ${aiMentions.join(', ')}`
+          : 'No AI tool names found in the document/image text.'}
+      </p>
+
+      <ProgressBar label="Paste Risk Score (ChatGPT / Copilot)" value={pasteRiskScore} />
+      <p className="text-slate-500 text-xs mt-1">
+        {sensitive.length
+          ? `If this doc were pasted into an AI chat, it would expose: ${sensitive.join(', ')}`
+          : 'No sensitive data found — low risk if this doc were pasted into an AI chat.'}
+      </p>
+      <p className="text-slate-500 text-xs mt-1">Not the document's overall risk score (see Risk tab).</p>
       <div className={`rounded-xl p-4 border mt-4 ${unsafe ? 'bg-red-500/10 border-red-500/30' : 'bg-green-500/10 border-green-500/30'}`}>
         <p className={`text-sm break-words ${unsafe ? 'text-red-400' : 'text-green-400'}`}>{shadowAi.data?.message}</p>
       </div>
@@ -446,7 +473,11 @@ function SecurityReport({ report, file }) {
       <ClipboardSection clipboard={report.clipboard} extractedText={report.ocr?.ok ? report.ocr.data?.extracted_text || '' : ''} />
       <PrintSection printControl={report.printControl} file={file} />
       <EncryptionSection encryption={report.encryption} />
-      <ShadowAISection shadowAi={report.shadowAi} pii={report.pii} />
+      <ShadowAISection
+        shadowAi={report.shadowAi}
+        pii={report.pii}
+        ocrText={report.ocr?.ok ? report.ocr.data?.extracted_text || '' : ''}
+      />
       <UEBASection ueba={report.ueba} />
       <ComplianceSection compliance={report.compliance} />
       <RecommendationsSection recommendations={report.recommendations} />

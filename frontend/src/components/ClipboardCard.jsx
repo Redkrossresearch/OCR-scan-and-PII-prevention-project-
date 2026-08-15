@@ -18,7 +18,6 @@ function ClipboardCard() {
     ? 'Yes'
     : 'None found';
 
-  const riskScore = clipboard?.data?.blocked ? 85 : 10;
 
   // Real gate: when blocked, we never touch the OS clipboard at all — so
   // pasting anywhere (this page, Notepad, WhatsApp, etc.) after clicking this
@@ -54,16 +53,11 @@ function ClipboardCard() {
 
       {report && clipboard?.ok && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <StatBox
               label="Sensitive Data"
               value={clipboard.data?.blocked ? 'Detected' : 'None'}
               color={clipboard.data?.blocked ? 'text-red-400' : 'text-green-400'}
-            />
-            <StatBox
-              label="Risk Score"
-              value={`${riskScore}%`}
-              color={riskScore > 70 ? 'text-red-400' : 'text-green-400'}
             />
             <StatBox label="Verdict" badge={<StatusBadge status={clipboard.data?.blocked ? 'blocked' : 'allowed'} />} />
           </div>
